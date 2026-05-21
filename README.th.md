@@ -1,6 +1,6 @@
 # 🤖 Agentic Workflow Framework
 
-กรอบการทำงานที่เข้มงวด (Strict Rules), จัดการความจำไม่ตกหล่น (Memory-Persistent), ควบคุม UI เป็นระบบ และประหยัด Token สำหรับพัฒนาซอฟต์แวร์ร่วมกับ AI Coding Agents (เช่น Cursor, Windsurf, Cline, Antigravity)
+กรอบการทำงานที่เข้มงวด (Strict Rules), จัดการความจำไม่ตกหล่น (Memory-Persistent), ควบคุม UI เป็นระบบ และประหยัด Token สำหรับพัฒนาซอฟต์แวร์ร่วมกับ AI Coding Agents (เช่น Cursor, Windsurf, Cline, Antigravity, Claude)
 
 [Read in English](README.md)
 
@@ -119,6 +119,7 @@
 | **Cursor IDE** | `.cursorrules` | วาง 4 Pillars ในไฟล์นี้ |
 | **Windsurf IDE** | `.windsurfrules` | รูปแบบเดียวกับ Cursor |
 | **Cline / Roo Cline** | `.clinerules` | VS Code Extension |
+| **Claude (Pro/Team)** | `Project Instructions` | ใส่กฎในช่อง Custom Instructions ของโปรเจกต์ |
 | **Antigravity** | `SKILL.md` หรือ Skills | ผสมกับ Skills ในเครื่องได้ |
 | **GitHub Copilot** | `.github/copilot-instructions.md` | Workspace-level instructions |
 | **Aider** | `.aider.conf.yml` + conventions | ใส่กฎเป็น conventions file |

@@ -1,6 +1,6 @@
 # 🤖 Agentic Workflow Framework
 
-A strict, memory-persistent, and token-efficient framework for developing software alongside AI Coding Agents (Cursor, Windsurf, Cline, Antigravity, etc.).
+A strict, memory-persistent, and token-efficient framework for developing software alongside AI Coding Agents (Cursor, Windsurf, Cline, Antigravity, Claude, etc.).
 
 [อ่านภาษาไทย](README.th.md)
 
@@ -70,6 +70,7 @@ When an AI operates in a repository utilizing this protocol, it MUST strictly ad
 | **Cursor IDE** | `.cursorrules` |
 | **Windsurf IDE** | `.windsurfrules` |
 | **Cline / Roo Cline** | `.clinerules` |
+| **Claude (Pro/Team)** | `Project Instructions` |
 | **GitHub Copilot** | `.github/copilot-instructions.md` |
 | **Aider** | `.aider.conf.yml` + conventions |
 
