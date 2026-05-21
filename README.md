@@ -1,4 +1,4 @@
-# 🤖 AI Coding Protocol
+# 🤖 Agentic Workflow Framework
 
 A strict, memory-persistent, and token-efficient framework for developing software alongside AI Coding Agents (Cursor, Windsurf, Cline, Antigravity, etc.).
 

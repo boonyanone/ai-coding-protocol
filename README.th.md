@@ -1,4 +1,4 @@
-# 🤖 Agentic Workflow Framework (Draft v2 — Opus Revised)
+# 🤖 Agentic Workflow Framework
 
 กรอบการทำงานที่เข้มงวด (Strict Rules), จัดการความจำไม่ตกหล่น (Memory-Persistent), ควบคุม UI เป็นระบบ และประหยัด Token สำหรับพัฒนาซอฟต์แวร์ร่วมกับ AI Coding Agents (เช่น Cursor, Windsurf, Cline, Antigravity)
 
