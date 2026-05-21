@@ -82,6 +82,9 @@
 เรามีสคริปต์แบบพกพาที่ไม่ต้องการ Library เพิ่มเติม (ใช้แค่ Node.js พื้นฐาน) เพื่อช่วยดูแล Repository ให้ถูกหลักอนามัย:
 
 ```bash
+# ติดตั้ง Protocol ในโปรเจกต์ของคุณ (ก๊อปปี้ templates, prompts, docs และสร้างไฟล์กฎสำหรับ AI ทุกค่ายอัตโนมัติ)
+./ai-protocol.sh init
+
 # ตรวจสอบความปลอดภัย (.env) และแจ้งเตือนถ้าไฟล์ความจำยาวเกินไป
 ./ai-protocol.sh check
 
@@ -91,6 +94,9 @@
 # แบ็คอัป STATE.md ของเดิมเข้าโฟลเดอร์ประวัติ และสร้าง STATE.md อันใหม่ให้สะอาด
 ./ai-protocol.sh clean
 
+# สร้าง Handoff Prompt สำหรับส่งต่อบริบทงานไปยังแชทใหม่ (ลด Token, ไม่เสียบริบท)
+./ai-protocol.sh handoff
+
 # ติดตั้ง Git Hook เพื่อรันการตรวจ check ก่อนสั่ง git commit ทุกครั้ง
 ./ai-protocol.sh install-hook
 ```
@@ -99,13 +105,15 @@
 
 ## 🛠️ 4. ตารางความเข้ากันได้ (Compatibility Matrix)
 
+ไฟล์ Config ด้านล่างทั้งหมดจะถูกสร้างอัตโนมัติเมื่อรัน `./ai-protocol.sh init`
+
 | Tool | Config File |
 |------|-------------|
 | **Cursor IDE** | `.cursorrules` |
 | **Windsurf IDE** | `.windsurfrules` |
 | **Cline / Roo Cline** | `.clinerules` |
-| **Claude (Pro/Team)** | `Project Instructions` |
-| **Antigravity** | `SKILL.md` หรือ AI Skills |
+| **Claude Code / Claude** | `.clauderules` / `.claudecoderc` |
+| **Antigravity** | `SKILL.md` |
 | **GitHub Copilot** | `.github/copilot-instructions.md` |
 | **Aider** | `.aider.conf.yml` + conventions |
 
@@ -121,8 +129,10 @@ git clone https://github.com/<your-org>/ai-coding-protocol.git
 cd /path/to/your/project
 /path/to/ai-coding-protocol/ai-protocol.sh init
 
-# 3. คัดลอกกฎ 4 Pillars ไปใส่ Config ของ AI Tool ที่ใช้ (เช่น Cursor)
-cp /path/to/ai-coding-protocol/.cursorrules .cursorrules
+# 3. เสร็จแล้ว! คำสั่ง init จะทำสิ่งต่อไปนี้ให้อัตโนมัติ:
+#    - สร้างโฟลเดอร์ .ai/ พร้อม templates, prompts, และ docs
+#    - สร้างไฟล์กฎสำหรับ AI ทุกค่าย (Cursor, Windsurf, Cline, Claude, Antigravity, Copilot)
+#    - สร้าง STATE.md, REFLECTIONS.md, และ DECISIONS.md พร้อมใช้งาน
 
 # 4. เริ่มสั่งงาน AI โดยก๊อปปี้ข้อความจาก `.ai/prompts/01-session-start.md`
 ```
