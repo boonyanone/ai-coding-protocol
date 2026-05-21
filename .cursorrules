@@ -4,29 +4,34 @@ You MUST strictly adhere to the 4 Pillars below when operating in this repositor
 ---
 
 ### Pillar 1: Strict Execution & Safety
-1. **Planning & Confirmation:** No Vibe Coding. Plan first, list files to touch. Checksum instructions before acting. Propose 2+ options for architectural forks instead of deciding autonomously.
-2. **Scope & Stepping:** Do not touch unrelated files (Scope Lock). Edit max 2 files per step, run tests, and output `[WAITING_FOR_USER]` to pause (Micro-Stepping). Do not refactor and build features simultaneously (No Double-Dipping).
-3. **Error Handling & Rollback:** Max 3 retries for errors. If it fails, stop, find the root cause, and propose a fix or rollback. If catastrophically broken, propose rapid rollback (e.g., `git restore .`).
-4. **Verification & Safety:** Read files before referencing them. Run Linter/Typecheck (e.g. `tsc --noEmit`) before finishing. Do not blindly overwrite entire files.
-5. **Dependencies & Security:** Check `package.json` before installing new packages. NEVER hardcode secrets; use `.env` and verify `.gitignore`.
-6. **Git Discipline:** Use Conventional Commits (`feat:`, `fix:`, `refactor:`, `docs:`, `style:`). Check for a clean git workspace before starting new major steps.
+1. **Planning & Progressive Complexity:** No Vibe Coding. Scale your approach based on task size:
+   - **Minor Task:** Execute directly.
+   - **Standard Task:** Plan, list files, and use Micro-Stepping (max 2 files/step).
+   - **Major Task:** Plan, write an ADR (Architecture Decision Record) in `.ai/DECISIONS.md`, and write Tests first.
+2. **API Contract-First:** NEVER hallucinate API payloads. Before integrating an API, create/read a schema in `.ai/docs/api_contracts/` or run a `curl` test.
+3. **AI-TDD Rule:** For critical business logic (auth, calculations, complex data transformations), you MUST write automated test cases or a validation script before implementing the logic.
+4. **Scope & Stepping:** Do not touch unrelated files (Scope Lock). Edit max 2 files per step, run tests, and output `[WAITING_FOR_USER]` to pause. Do not refactor and build features simultaneously (No Double-Dipping).
+5. **Error Handling & Rollback:** Max 3 retries for errors. If it fails, stop, find the root cause, and propose a fix or rollback. If catastrophically broken, propose rapid rollback (e.g., `git restore .`).
+6. **Verification & Safety:** Read files before referencing them. Run Linter/Typecheck (e.g. `tsc --noEmit`) before finishing. Do not blindly overwrite entire files.
+7. **Dependencies & Security:** Check `package.json` before installing packages. NEVER hardcode secrets; use `.env` and verify `.gitignore`.
+8. **Git Discipline:** Use Conventional Commits (`feat:`, `fix:`, `refactor:`, `docs:`, `style:`).
 
 ### Pillar 2: Memory & Reflexion
 1. **Startup Protocol:** Always read `.ai/STATE.md` and `.ai/REFLECTIONS.md` FIRST upon starting a new session.
 2. **Active State:** Maintain `.ai/STATE.md` (keep under 20 lines) as RAM. Update it when starting or finishing steps.
-3. **Self-Correction:** Log resolved bugs and root causes in `.ai/REFLECTIONS.md`. Keep only the 15 most recent entries (move older to archive).
-4. **Archiving:** Move completed feature technical specs to `.ai/docs/`.
-5. **Context Window Alert:** If context gets too long or you lose memory, save STATE.md and suggest starting a new chat session.
+3. **Self-Correction:** Log resolved bugs and root causes in `.ai/REFLECTIONS.md`.
+4. **ADR & Architecture:** Log major architectural choices in `.ai/DECISIONS.md`.
+5. **Context Window Alert:** If context gets too long, save STATE.md and suggest starting a new chat session.
 
 ### Pillar 3: Premium UX/UI & Design System
-1. **SSOT:** Use `shadcn/ui` + `Tailwind CSS` as the primary design foundation. Add new components via `npx shadcn-ui@latest add <name>`.
+1. **SSOT:** Use standard UI libraries (e.g., shadcn/ui) + `Tailwind CSS`.
 2. **Design Tokens First:** Always check `.ai/docs/ui_guidelines.md` or `tailwind.config` before writing UI code. No arbitrary colors/spacing.
-3. **Modern Web:** Utilize modern UI/UX practices (e.g., responsive design, view transitions, glassmorphism) where appropriate.
-4. **Layout Uniformity:** Inherit global layout wrappers. Do not create isolated layout structures for new pages.
+3. **Modern Web:** Utilize modern UI/UX practices (e.g., responsive design, view transitions, glassmorphism).
+4. **Layout Uniformity:** Inherit global layout wrappers. Do not create isolated layout structures.
 
 ### Pillar 4: Token-Saving & Efficiency
-1. **Clean Session Protocol:** Recommend a new chat session after completing major milestones and committing code to reset context.
+1. **Clean Session Protocol:** Recommend a new chat session after completing major milestones and committing code. Use `.ai/prompts/` shortcuts when provided.
 2. **Diff-Only Output:** Do NOT output entire files in chat. Use search-and-replace, diffs, or specific edits only.
-3. **Context Paging:** Do NOT read huge files entirely if you only need a specific section.
+3. **Context Paging:** Do NOT read huge files entirely. Search for specific symbols or read line ranges.
 4. **On-Demand Reading:** Only read files in `.ai/docs/` when specifically required for the current task.
 5. **Concise Communication:** Be direct. Use bullet points. Skip filler words.
