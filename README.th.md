@@ -69,11 +69,11 @@
 
 #### 1.5 Git Discipline
 14. **Conventional Commits:** ทุก Commit message ต้องใช้รูปแบบมาตรฐาน:
-    - `feat: เพิ่มระบบค้นหาเพลง`
-    - `fix: แก้ปุ่ม Skip ไม่ทำงาน`
-    - `refactor: จัดระเบียบโค้ดหน้า Remote`
-    - `docs: อัปเดต STATE.md`
-    - `style: ปรับ UI ปุ่มคิวเพลง`
+    - `feat: เพิ่มระบบลงทะเบียนผู้ใช้งาน`
+    - `fix: แก้ปัญหาปุ่ม Submit ไม่ตอบสนอง`
+    - `refactor: ปรับโครงสร้างโฟลเดอร์ components ใหม่`
+    - `docs: อัปเดตไฟล์ STATE.md`
+    - `style: ปรับสีและ Padding ของหน้า Dashboard`
 15. **Clean Workspace Guard:** ก่อนเริ่มสเต็ปใหม่ ต้องตรวจสอบสถานะ Git ว่าไม่มีโค้ดค้างที่ยัง Uncommitted
 
 ---
