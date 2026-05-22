@@ -143,6 +143,14 @@ function init() {
           fs.copyFileSync(cursorrulesSrc, copilotPath);
         }
         
+        // Setup IDE Tasks Integration
+        ensureDir(path.join(targetDir, '.vscode'));
+        const tasksSrc = path.join(sourceDir, '.ai/templates/tasks.json');
+        const tasksDest = path.join(targetDir, '.vscode/tasks.json');
+        if (fs.existsSync(tasksSrc) && !fs.existsSync(tasksDest)) {
+          fs.copyFileSync(tasksSrc, tasksDest);
+        }
+        
         // Setup .gitignore if it doesn't exist
         const gitignoreSrc = path.join(sourceDir, '.gitignore');
         const gitignoreDest = path.join(targetDir, '.gitignore');

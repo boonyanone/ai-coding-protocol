@@ -79,7 +79,19 @@ Working with AI under this protocol emphasizes **"Micro-Stepping"** and keeping 
 
 ---
 
-## 4. Managing AI Memory (RAM & Reflexion)
+## 4. IDE Task Menu Integration (No-CLI Mode)
+
+If you prefer not to type CLI commands, the initialization script (`init`) automatically integrates with your IDE (VS Code, Cursor, Antigravity, Windsurf) by generating a `.vscode/tasks.json` file.
+
+This allows you to access all AI Protocol commands from a graphical dropdown menu:
+1. Open the command palette or click **Terminal -> Run Task...** in your IDE top menu.
+2. Select the command you want to run from the list (e.g. `🚀 AI Protocol: Dashboard`).
+
+Alternatively, if you are using an AI chat interface, you can simply **tell the AI** to run the commands for you (e.g., *"AI, open the dashboard"*, or *"Run the security check"*).
+
+---
+
+## 5. Managing AI Memory (RAM & Reflexion)
 
 The `.ai/` folder acts as the AI's brain. You must keep it clean and organized:
 
