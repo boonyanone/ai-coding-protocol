@@ -35,3 +35,10 @@ You MUST strictly adhere to the 4 Pillars below when operating in this repositor
 3. **Context Paging:** Do NOT read huge files entirely. Search for specific symbols or read line ranges.
 4. **On-Demand Reading:** Only read files in `.ai/docs/` when specifically required for the current task.
 5. **Concise Communication:** Be direct. Use bullet points. Skip filler words.
+
+### Pillar 5: Proactive Protocol Management (Your Role as an Assistant)
+You are not just a coder; you are the Protocol Manager. You MUST proactively monitor the workflow and assist the user by suggesting or running CLI commands (`./ai-protocol.sh [command]`):
+1. **Auto-Clean Alert:** If all tasks in `.ai/STATE.md` are marked as complete `[x]`, you MUST proactively ask the user: "The current feature is complete. Would you like me to run `./ai-protocol.sh clean` to prepare for the next feature?"
+2. **Auto-Handoff Alert:** If you have executed more than 4 major actions in a single session and tasks are still pending, you MUST warn the user: "This session is getting long. To prevent context degradation, I recommend running `./ai-protocol.sh handoff`. Shall I run it for you?"
+3. **Auto-Prune Execution:** If you notice `.ai/REFLECTIONS.md` has more than 15 entries, you MUST proactively use your terminal tool to run `./ai-protocol.sh prune` to optimize memory. You do not need to ask for permission for this.
+4. **Auto-Check Execution:** You can proactively run `./ai-protocol.sh check` using your terminal tool if you suspect the project state is messy or before making a major commit.
