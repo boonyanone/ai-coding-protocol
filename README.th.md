@@ -77,7 +77,30 @@
 
 ---
 
-## 🚀 3. เครื่องมืออัตโนมัติ (`ai-protocol.sh`)
+## 🎨 3. การเปลี่ยนธีม Design System (UI Themes)
+
+ค่าเริ่มต้น (Default) ของ Framework นี้จะใช้ธีม **Space-Dark Glassmorphism** แต่เรามี 4 สไตล์มาตรฐานระดับพรีเมียมให้เลือกใช้
+
+หากต้องการเปลี่ยนสไตล์ สามารถก๊อปปี้ไฟล์เทมเพลตจาก `.ai/templates/ui/` ไปทับ `.ai/docs/ui_guidelines.md` ได้เลย:
+
+```bash
+# แบบที่ 1: Minimalist & Clean (สไตล์ shadcn/ui, เรียบหรู ขาว-ดำ)
+cp .ai/templates/ui/minimal.md .ai/docs/ui_guidelines.md
+
+# แบบที่ 2: Modern Vibrant (สไตล์ HeroUI/NextUI, สีสันสดใส, กระจกใส)
+cp .ai/templates/ui/vibrant.md .ai/docs/ui_guidelines.md
+
+# แบบที่ 3: Data-Heavy (สไตล์ Tremor, เหมาะกับหน้า Dashboard, เน้นอ่านข้อมูล)
+cp .ai/templates/ui/data_heavy.md .ai/docs/ui_guidelines.md
+
+# แบบที่ 4: Futuristic Space-Dark (สไตล์ Aceternity, อวกาศล้ำๆ - Default)
+cp .ai/templates/ui/futuristic.md .ai/docs/ui_guidelines.md
+```
+เมื่อเปลี่ยนไฟล์แล้ว AI จะอ่านและยึดสไตล์ใหม่นี้เป็นหลักในการเขียน CSS/Tailwind ให้คุณทันที!
+
+---
+
+## 🚀 4. เครื่องมืออัตโนมัติ (`ai-protocol.sh`)
 
 เรามีสคริปต์แบบพกพาที่ไม่ต้องการ Library เพิ่มเติม (ใช้แค่ Node.js พื้นฐาน) เพื่อช่วยดูแล Repository ให้ถูกหลักอนามัย:
 
@@ -103,7 +126,7 @@
 
 ---
 
-## 🛠️ 4. ตารางความเข้ากันได้ (Compatibility Matrix)
+## 🛠️ 5. ตารางความเข้ากันได้ (Compatibility Matrix)
 
 ไฟล์ Config ด้านล่างทั้งหมดจะถูกสร้างอัตโนมัติเมื่อรัน `./ai-protocol.sh init`
 
@@ -119,7 +142,7 @@
 
 ---
 
-## 📈 5. วิธีเริ่มต้นใช้งาน (Getting Started)
+## 📈 6. วิธีเริ่มต้นใช้งาน (Getting Started)
 
 ```bash
 # 1. Clone framework
