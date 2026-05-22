@@ -10,13 +10,20 @@ This protocol combines cutting-edge AI development concepts like **Superpowers**
 
 ---
 
-## 🌟 Why Use This? (vs. Other Tools)
+## 🌟 Why Use This Framework? (The Pain Points it Solves)
 
-There are many prompt collections and AI agents on GitHub, but this protocol is fundamentally different. It acts as an **Active Governance Framework** for your existing IDE (Cursor, Windsurf, Cline).
+If you've spent hours coding with AI tools in your IDE, you've likely encountered these common pain points:
+- ⚠️ **Context Bloat:** The AI chat gets too long, slows down, and becomes expensive.
+- ⚠️ **Agent Amnesia:** When you start a new chat, the AI forgets the project's rules, architecture, and previous bug fixes.
+- ⚠️ **UI Inconsistency:** The AI generates random colors or layouts instead of following your design system.
 
-- ❌ **Static Prompts (Awesome-CursorRules):** Just text files that AI often ignores as context grows.
-- ❌ **Standalone Agents (Aider, OpenHands):** Force you to leave your IDE to run separate CLI tools.
-- ✅ **Our Protocol:** Works *inside* your IDE. It's a living system with active memory management (`STATE.md`), safety pre-commit hooks, automated context pruning, one-click session handoffs, and an Auto-Updater. It turns your IDE's AI into a disciplined Senior Developer.
+**AI Coding Protocol** solves this by acting as an **Active Governance Framework** directly inside your IDE (Cursor, Windsurf, Cline). 
+
+It provides:
+- ✅ **Active Memory Management (`STATE.md`):** Keeps track of the current task and past learnings across chat sessions.
+- ✅ **One-Click Handoffs:** A CLI tool to easily pack up the context of an old chat and hand it over to a fresh, clean session.
+- ✅ **Safety Guardrails:** Pre-commit hooks to prevent accidental `.env` leaks and keep your memory files optimized.
+- ✅ **Auto-Updating CLI:** A built-in script (`ai-protocol.sh`) that manages your workflow and keeps the protocol up to date.
 
 ---
 
