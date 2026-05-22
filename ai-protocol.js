@@ -56,6 +56,7 @@ function init() {
   // 1. Create target directories
   ensureDir(path.join(targetDir, '.ai'));
   ensureDir(path.join(targetDir, '.ai/templates'));
+  ensureDir(path.join(targetDir, '.ai/templates/ui'));
   ensureDir(path.join(targetDir, '.ai/docs'));
   ensureDir(path.join(targetDir, '.ai/docs/api_contracts'));
   ensureDir(path.join(targetDir, '.ai/prompts'));
@@ -70,15 +71,27 @@ function init() {
       
       const cursorrulesSrc = path.join(sourceDir, '.cursorrules');
       if (fs.existsSync(cursorrulesSrc)) {
-        fs.copyFileSync(cursorrulesSrc, path.join(targetDir, '.cursorrules'));
-        fs.copyFileSync(cursorrulesSrc, path.join(targetDir, '.windsurfrules'));
-        fs.copyFileSync(cursorrulesSrc, path.join(targetDir, '.clinerules'));
-        fs.copyFileSync(cursorrulesSrc, path.join(targetDir, '.clauderules'));
-        fs.copyFileSync(cursorrulesSrc, path.join(targetDir, '.claudecoderc'));
-        fs.copyFileSync(cursorrulesSrc, path.join(targetDir, 'SKILL.md'));
+        // IDE config files: only copy if they don't already exist (protect user customizations)
+        const ideConfigs = [
+          { dest: '.cursorrules' },
+          { dest: '.windsurfrules' },
+          { dest: '.clinerules' },
+          { dest: '.clauderules' },
+          { dest: '.claudecoderc' },
+          { dest: 'SKILL.md' },
+        ];
+        ideConfigs.forEach(({ dest }) => {
+          const targetPath = path.join(targetDir, dest);
+          if (!fs.existsSync(targetPath)) {
+            fs.copyFileSync(cursorrulesSrc, targetPath);
+          }
+        });
         
         ensureDir(path.join(targetDir, '.github'));
-        fs.copyFileSync(cursorrulesSrc, path.join(targetDir, '.github/copilot-instructions.md'));
+        const copilotPath = path.join(targetDir, '.github/copilot-instructions.md');
+        if (!fs.existsSync(copilotPath)) {
+          fs.copyFileSync(cursorrulesSrc, copilotPath);
+        }
         
         // Copy CLI Scripts to target directory so user can run them locally
         const shSrc = path.join(sourceDir, 'ai-protocol.sh');
@@ -277,6 +290,15 @@ function handoff() {
     gitStatus = '*(Git not initialized or not found)*';
   }
 
+  let decisionsContent = '*(No architectural decisions found)*';
+  if (fs.existsSync('.ai/DECISIONS.md')) {
+    const decisions = fs.readFileSync('.ai/DECISIONS.md', 'utf8').trim();
+    // Only include if it has actual entries (not just the empty template)
+    if (!decisions.includes('No architectural decisions yet')) {
+      decisionsContent = decisions;
+    }
+  }
+
   const dateStr = new Date().toLocaleString();
 
   const handoffPrompt = `# 📌 Project Context & Handover (Generated: ${dateStr})
@@ -293,7 +315,12 @@ ${stateContent}
 ${recentReflections}
 \`\`\`
 
-## 3. Uncommitted Changes (Git Status)
+## 3. Architectural Decisions (ADR)
+\`\`\`markdown
+${decisionsContent}
+\`\`\`
+
+## 4. Uncommitted Changes (Git Status)
 \`\`\`text
 ${gitStatus || 'No uncommitted changes.'}
 \`\`\`

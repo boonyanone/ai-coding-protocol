@@ -21,7 +21,12 @@
 │   ├── templates/                  # เทมเพลตเปล่าสำหรับขึ้นโปรเจกต์ใหม่
 │   │   ├── STATE.template.md
 │   │   ├── REFLECTIONS.template.md
-│   │   └── DECISIONS.template.md
+│   │   ├── DECISIONS.template.md
+│   │   └── ui/                     # เทมเพลต Design System ให้เลือกสลับได้
+│   │       ├── futuristic.md       # Space-Dark + Glassmorphism (Default)
+│   │       ├── minimal.md          # เรียบหรู ขาว-ดำ (สไตล์ shadcn/ui)
+│   │       ├── vibrant.md          # สีสดใส กระจกใส (สไตล์ HeroUI)
+│   │       └── data_heavy.md       # หน้า Dashboard (สไตล์ Tremor)
 │   ├── prompts/                    # [Shortcuts] โฟลเดอร์รวม Prompt ลัดสำหรับก๊อปวาง
 │   │   ├── 01-session-start.md     # เริ่มเซสชันใหม่
 │   │   ├── 02-session-end.md       # จบเซสชัน / ส่งงาน
@@ -33,9 +38,10 @@
 │       ├── ui_guidelines.md        # มาตรฐาน Design System (สี, Font, Component, Layout)
 │       ├── database.md             # Schema และกฎการจัดการฐานข้อมูล
 │       └── security_policy.md      # นโยบายความปลอดภัย, Env, Secrets
-├── ai-protocol.sh                  # เครื่องมือ CLI สำหรับรันสคริปต์อัตโนมัติ
-├── ai-protocol.js                  # สคริปต์ Node.js ระบบเบื้องหลัง
-├── .cursorrules / SKILL.md         # ไฟล์คำสั่งหลักที่บังคับ AI ปฏิบัติตามกฎ 4 Pillars
+├── .gitignore                       # ป้องกัน .env, node_modules, etc. หลุดขึ้น Git
+├── ai-protocol.sh                   # เครื่องมือ CLI สำหรับรันสคริปต์อัตโนมัติ
+├── ai-protocol.js                   # สคริปต์ Node.js ระบบเบื้องหลัง
+├── .cursorrules / SKILL.md          # ไฟล์คำสั่งหลักที่บังคับ AI ปฏิบัติตามกฎ 4 Pillars
 └── (Source Code...)
 ```
 

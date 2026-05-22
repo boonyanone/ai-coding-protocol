@@ -21,7 +21,12 @@ We separate the AI's memory into **RAM** (short, concise, read every session) an
 │   ├── templates/                  # Blank templates for new projects
 │   │   ├── STATE.template.md
 │   │   ├── REFLECTIONS.template.md
-│   │   └── DECISIONS.template.md
+│   │   ├── DECISIONS.template.md
+│   │   └── ui/                     # Swappable UI Design System themes
+│   │       ├── futuristic.md       # Space-Dark + Glassmorphism (Default)
+│   │       ├── minimal.md          # Clean & Flat (shadcn/ui style)
+│   │       ├── vibrant.md          # Colorful & Playful (HeroUI style)
+│   │       └── data_heavy.md       # Data Dashboard (Tremor style)
 │   ├── prompts/                    # [Shortcuts] Copy-paste prompts for the AI chat
 │   │   ├── 01-session-start.md
 │   │   ├── 02-session-end.md
@@ -33,9 +38,10 @@ We separate the AI's memory into **RAM** (short, concise, read every session) an
 │       ├── ui_guidelines.md        # Design system (Colors, Fonts, Layout)
 │       ├── database.md             # DB Schema and Sync Rules
 │       └── security_policy.md      # Security rules, Env management
-├── ai-protocol.sh                  # CLI wrapper for automation
-├── ai-protocol.js                  # Node.js automation script
-├── .cursorrules / SKILL.md         # Core instructions forcing AI to follow the 4 Pillars
+├── .gitignore                       # Security: prevents .env, node_modules, etc.
+├── ai-protocol.sh                   # CLI wrapper for automation
+├── ai-protocol.js                   # Node.js automation script
+├── .cursorrules / SKILL.md          # Core instructions forcing AI to follow the 4 Pillars
 └── (Source Code...)
 ```
 
