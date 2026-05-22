@@ -93,6 +93,13 @@ function init() {
           fs.copyFileSync(cursorrulesSrc, copilotPath);
         }
         
+        // Setup .gitignore if it doesn't exist
+        const gitignoreSrc = path.join(sourceDir, '.gitignore');
+        const gitignoreDest = path.join(targetDir, '.gitignore');
+        if (fs.existsSync(gitignoreSrc) && !fs.existsSync(gitignoreDest)) {
+          fs.copyFileSync(gitignoreSrc, gitignoreDest);
+        }
+        
         // Copy CLI Scripts to target directory so user can run them locally
         const shSrc = path.join(sourceDir, 'ai-protocol.sh');
         const jsSrc = path.join(sourceDir, 'ai-protocol.js');
@@ -245,6 +252,10 @@ function clean() {
 
 function installHook() {
   log('cyan', '🪝 Installing Git pre-commit hook...');
+  if (!fs.existsSync('.git')) {
+    log('red', '❌ Error: .git directory not found. Please run "git init" first.');
+    return;
+  }
   ensureDir('.git/hooks');
   const hookPath = '.git/hooks/pre-commit';
   const hookContent = `#!/bin/sh
@@ -285,7 +296,7 @@ function handoff() {
 
   let gitStatus = '*(No changes)*';
   try {
-    gitStatus = execSync('git status -s', { encoding: 'utf8' }).trim();
+    gitStatus = execSync('git status -s', { encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] }).trim();
   } catch (err) {
     gitStatus = '*(Git not initialized or not found)*';
   }

@@ -6,6 +6,8 @@ A strict, memory-persistent, and token-efficient framework for developing softwa
 
 This protocol combines cutting-edge AI development concepts like **Superpowers**, **Karpathy's LLM Wiki**, **Reflexion**, and strict execution guardrails to eliminate context bloat, hallucination, over-execution, and UI inconsistency.
 
+📖 **[Read the Detailed User Manual](USER_MANUAL.md)**
+
 ---
 
 ## 📁 1. The Second Brain (.ai/ Directory)

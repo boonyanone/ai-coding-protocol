@@ -6,6 +6,8 @@
 
 ผสมผสานแนวคิดจาก **Superpowers**, **LLM Wiki (Karpathy)**, **Reflexion**, **9arm Protocol** และระบบประหยัด Token เพื่อป้องกัน Context บวม, Hallucination, การทำเกินสั่ง และ UI มั่ว
 
+📖 **[อ่านคู่มือการใช้งานแบบละเอียด (User Manual)](USER_MANUAL.th.md)**
+
 ---
 
 ## 📁 1. โครงสร้างโฟลเดอร์หน่วยความจำ (.ai/ Directory)
