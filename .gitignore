@@ -29,3 +29,4 @@ npm-debug.log*
 # AI Protocol State History (generated backups, not source of truth)
 .ai/docs/state_history/
 .ai/docs/reflections_archive.md
+.ai/HANDOFF.md

@@ -449,10 +449,18 @@ ${gitStatus || 'No uncommitted changes.'}
 3. Output \`[WAITING_FOR_USER]\` and wait for my instruction before writing any code.
 `;
 
-  console.log('\n----------------- COPY THE TEXT BELOW -----------------');
-  console.log(handoffPrompt);
-  console.log('-------------------------------------------------------\n');
-  log('green', '✅ Handoff prompt generated successfully! Copy the markdown above into your new AI session.');
+  try {
+    ensureDir('.ai');
+    atomicWriteSync('.ai/HANDOFF.md', handoffPrompt);
+    log('green', '✅ Handoff prompt generated and saved to .ai/HANDOFF.md!');
+    log('cyan', '👉 Please open .ai/HANDOFF.md, copy all contents, and paste it into your new AI session.');
+  } catch (err) {
+    log('red', `❌ Failed to save HANDOFF.md: ${err.message}`);
+    // Fallback to console if file write fails
+    console.log('\n----------------- COPY THE TEXT BELOW -----------------');
+    console.log(handoffPrompt);
+    console.log('-------------------------------------------------------\n');
+  }
 }
 
 function dashboard() {
