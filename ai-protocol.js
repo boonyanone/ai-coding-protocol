@@ -198,27 +198,35 @@ function check() {
   log('cyan', '🔍 Running AI Protocol Compliance Check...');
   let hasError = false;
 
-  // 1. Check .gitignore & Git active tracking for .env
+  // 1. Check .gitignore & Git active tracking for .env files
   if (fs.existsSync('.gitignore')) {
     const gitignore = fs.readFileSync('.gitignore', 'utf8');
-    if (!gitignore.includes('.env')) {
+    const lines = gitignore.split(/\r?\n/).map(l => l.trim());
+    if (!lines.includes('.env') && !lines.includes('*.env') && !lines.includes('.env.*')) {
       log('red', '❌ Security Warning: .env is missing from .gitignore!');
       hasError = true;
     } else {
-      log('green', '✅ .gitignore secures .env');
+      log('green', '✅ .gitignore secures .env files');
     }
   } else {
     log('yellow', '⚠️ No .gitignore found.');
   }
 
-  // Active Git tracking check for .env to prevent accidental commit
+  // Active Git tracking check for .env* to prevent accidental commit of any secret files
   if (fs.existsSync('.git')) {
     try {
-      execSync('git ls-files --error-unmatch .env', { stdio: 'ignore' });
-      log('red', '❌ Security Danger: .env file is currently tracked by Git! Run "git rm --cached .env" immediately to stop tracking it.');
-      hasError = true;
+      const trackedEnv = execSync('git ls-files ".env*"', { encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] }).trim();
+      if (trackedEnv) {
+        const envFiles = trackedEnv.split(/\r?\n/).filter(f => !f.endsWith('.example') && !f.endsWith('.sample') && !f.endsWith('.template'));
+        if (envFiles.length > 0) {
+          log('red', `❌ Security Danger: The following secret files are currently tracked by Git!`);
+          envFiles.forEach(f => log('red', `   - ${f}`));
+          log('red', `   Run "git rm --cached <file>" immediately to stop tracking them!`);
+          hasError = true;
+        }
+      }
     } catch (e) {
-      // .env is not tracked, which is safe!
+      // Git command failed, ignore
     }
   }
 
