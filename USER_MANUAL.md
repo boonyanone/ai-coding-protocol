@@ -123,6 +123,7 @@ You can access these tools by running `./ai-protocol.sh [command]` in your proje
 | `prune` | Archives old reflections to save tokens. | When `REFLECTIONS.md` exceeds 15 entries. |
 | `clean` | Backs up `STATE.md` and generates a blank one. | When completing a major feature milestone. |
 | `handoff` | Generates a context-rich prompt for a new AI session. | When the current AI chat becomes too long. |
+| `dashboard` | Opens the AI Second Brain Terminal Dashboard. | When you want an overview of pending tasks and memories. |
 | `install-hook` | Installs a Git Pre-commit hook to automate safety checks. | Run once after `git init`. |
 
 ---

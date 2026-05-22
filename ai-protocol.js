@@ -42,6 +42,18 @@ function copyFolderSync(from, to) {
   });
 }
 
+function atomicWriteSync(filePath, content, options = {}) {
+  const tempPath = `${filePath}.tmp.${Date.now()}`;
+  fs.writeFileSync(tempPath, content, options);
+  fs.renameSync(tempPath, filePath);
+}
+
+function atomicCopySync(srcPath, destPath) {
+  const tempPath = `${destPath}.tmp.${Date.now()}`;
+  fs.copyFileSync(srcPath, tempPath);
+  fs.renameSync(tempPath, destPath);
+}
+
 function init() {
   log('cyan', '🤖 Initializing AI Protocol in the current directory...');
   
@@ -218,11 +230,11 @@ function prune() {
   const keep = entries.slice(0, 15);
   const archive = entries.slice(15);
   
-  fs.writeFileSync(refPath, header + keep.join(''));
+  atomicWriteSync(refPath, header + keep.join(''));
   
   ensureDir('.ai/docs');
   if (!fs.existsSync(archPath)) {
-    fs.writeFileSync(archPath, '# 🗄️ Reflections Archive\n\n');
+    atomicWriteSync(archPath, '# 🗄️ Reflections Archive\n\n');
   }
   fs.appendFileSync(archPath, archive.join(''));
   
@@ -242,10 +254,10 @@ function clean() {
 
   const templatePath = '.ai/templates/STATE.template.md';
   if (fs.existsSync(templatePath)) {
-    fs.copyFileSync(templatePath, '.ai/STATE.md');
+    atomicCopySync(templatePath, '.ai/STATE.md');
     log('green', `✅ Reset STATE.md from template.`);
   } else {
-    fs.writeFileSync('.ai/STATE.md', '# 📍 Active State (RAM)\n\n## 🚀 Current Objective\n\n## 📋 Action Plan\n');
+    atomicWriteSync('.ai/STATE.md', '# 📍 Active State (RAM)\n\n## 🚀 Current Objective\n\n## 📋 Action Plan\n');
     log('yellow', `⚠️ Template not found. Created generic STATE.md.`);
   }
 }
@@ -272,7 +284,7 @@ fi
 exit 0
 `;
   
-  fs.writeFileSync(hookPath, hookContent, { mode: 0o755 });
+  atomicWriteSync(hookPath, hookContent, { mode: 0o755 });
   log('green', '✅ Pre-commit hook installed successfully! (Currently non-blocking)');
 }
 
@@ -349,6 +361,56 @@ ${gitStatus || 'No uncommitted changes.'}
   log('green', '✅ Handoff prompt generated successfully! Copy the markdown above into your new AI session.');
 }
 
+function dashboard() {
+  log('blue', '\n==================================================');
+  log('blue', '             🧠 AI SECOND BRAIN HUB             ');
+  log('blue', '==================================================\n');
+
+  log('cyan', '📍 PENDING TASKS (STATE.md)');
+  if (fs.existsSync('.ai/STATE.md')) {
+    const state = fs.readFileSync('.ai/STATE.md', 'utf8').trim();
+    const stateLines = state.split('\n').filter(line => line.trim() !== '' && !line.startsWith('# 📍 Active State') && !line.startsWith('*Last Updated'));
+    console.log(stateLines.slice(0, 10).join('\n') || '  (No pending tasks)');
+    if (stateLines.length > 10) console.log('... (truncated)');
+  } else {
+    console.log('  (No active state)');
+  }
+  console.log('\n');
+
+  log('yellow', '📚 RECENT REFLECTIONS');
+  if (fs.existsSync('.ai/REFLECTIONS.md')) {
+    const reflections = fs.readFileSync('.ai/REFLECTIONS.md', 'utf8');
+    const sections = reflections.split(/^(?=### )/m).slice(1);
+    if (sections.length > 0) {
+      console.log(sections.slice(0, 3).join('').trim());
+      if (sections.length > 3) console.log(`\n... (+${sections.length - 3} more entries)`);
+    } else {
+      console.log('  (No reflections)');
+    }
+  } else {
+    console.log('  (No reflections file)');
+  }
+  console.log('\n');
+  
+  log('green', '🏗️ ARCHITECTURE DECISIONS');
+  if (fs.existsSync('.ai/DECISIONS.md')) {
+    const decisions = fs.readFileSync('.ai/DECISIONS.md', 'utf8').trim();
+    if (!decisions.includes('No architectural decisions yet')) {
+      const decisionLines = decisions.split('\n').filter(line => line.trim() !== '' && !line.startsWith('# 🏗️ Architectural Decisions'));
+      console.log(decisionLines.slice(0, 5).join('\n') || '  (No major decisions recorded yet)');
+      if (decisionLines.length > 5) console.log('... (truncated)');
+    } else {
+      console.log('  (No major decisions recorded yet)');
+    }
+  } else {
+     console.log('  (No decisions file)');
+  }
+  
+  console.log('\n');
+  log('blue', '==================================================');
+  log('reset', 'Commands: `ai-protocol handoff` | `ai-protocol clean` | `ai-protocol prune`\n');
+}
+
 function help() {
   log('blue', `🤖 AI Coding Protocol CLI Tool`);
   log('reset', `Usage: ./ai-protocol.sh [command]\n`);
@@ -358,6 +420,7 @@ function help() {
   log('reset', `  prune        Archive old reflections`);
   log('reset', `  clean        Backup and reset STATE.md`);
   log('reset', `  handoff      Generate a session handover prompt`);
+  log('reset', `  dashboard    Open the AI Second Brain Terminal Dashboard`);
   log('reset', `  install-hook Install git pre-commit hook`);
 }
 
@@ -367,6 +430,7 @@ switch (command) {
   case 'prune': prune(); break;
   case 'clean': clean(); break;
   case 'handoff': handoff(); break;
+  case 'dashboard': dashboard(); break;
   case 'install-hook': installHook(); break;
   default: help(); break;
 }

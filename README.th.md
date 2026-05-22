@@ -128,6 +128,9 @@ cp .ai/templates/ui/futuristic.md .ai/docs/ui_guidelines.md
 # สร้าง Handoff Prompt สำหรับส่งต่อบริบทงานไปยังแชทใหม่ (ลด Token, ไม่เสียบริบท)
 ./ai-protocol.sh handoff
 
+# เปิดหน้าจอ Dashboard สรุปงานและสถานะทั้งหมดของ AI
+./ai-protocol.sh dashboard
+
 # ติดตั้ง Git Hook เพื่อรันการตรวจ check ก่อนสั่ง git commit ทุกครั้ง
 ./ai-protocol.sh install-hook
 ```

@@ -131,6 +131,9 @@ Ensure Node.js is installed.
 # Generate a context-rich handoff prompt for starting a new AI chat session
 ./ai-protocol.sh handoff
 
+# Open the AI Second Brain Terminal Dashboard
+./ai-protocol.sh dashboard
+
 # Install a git pre-commit hook to block commits if safety checks fail
 ./ai-protocol.sh install-hook
 ```
