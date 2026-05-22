@@ -3,6 +3,9 @@
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
+const https = require('https');
+
+const PROTOCOL_VERSION = "1.0.0";
 
 const args = process.argv.slice(2);
 const command = args[0];
@@ -109,6 +112,76 @@ function atomicCopySync(srcPath, destPath) {
   } catch (err) {
     if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
     throw err;
+  }
+}
+
+function downloadFile(url, dest) {
+  return new Promise((resolve, reject) => {
+    const req = https.get(url, (res) => {
+      if (res.statusCode !== 200) {
+        return reject(new Error(`Failed to download ${url}: HTTP ${res.statusCode}`));
+      }
+      let data = '';
+      res.on('data', (chunk) => { data += chunk; });
+      res.on('end', () => {
+        try {
+          atomicWriteSync(dest, data);
+          resolve();
+        } catch (e) {
+          reject(e);
+        }
+      });
+    });
+    req.on('error', reject);
+  });
+}
+
+function checkUpdate() {
+  return new Promise((resolve) => {
+    const req = https.get('https://raw.githubusercontent.com/boonyanone/ai-coding-protocol/main/ai-protocol.js', (res) => {
+      let data = '';
+      res.on('data', (chunk) => { data += chunk; });
+      res.on('end', () => {
+        const match = data.match(/const PROTOCOL_VERSION\s*=\s*['"]([^'"]+)['"]/);
+        if (match && match[1] && match[1] !== PROTOCOL_VERSION) {
+          log('yellow', `\n💡 Update Available! A new version of AI Protocol (${match[1]}) is available.`);
+          log('cyan', `👉 Run './ai-protocol.sh update' to upgrade.\n`);
+        }
+        resolve();
+      });
+    });
+    req.on('error', () => resolve()); // Ignore errors silently
+    req.setTimeout(2000, () => {
+      req.abort();
+      resolve();
+    });
+  });
+}
+
+async function update() {
+  log('cyan', '🔄 Updating AI Protocol...');
+  
+  const filesToUpdate = [
+    { url: 'https://raw.githubusercontent.com/boonyanone/ai-coding-protocol/main/ai-protocol.js', dest: path.join(projectRoot, 'ai-protocol.js') },
+    { url: 'https://raw.githubusercontent.com/boonyanone/ai-coding-protocol/main/ai-protocol.sh', dest: path.join(projectRoot, 'ai-protocol.sh') },
+    { url: 'https://raw.githubusercontent.com/boonyanone/ai-coding-protocol/main/.cursorrules', dest: path.join(projectRoot, '.cursorrules') }
+  ];
+
+  try {
+    for (const file of filesToUpdate) {
+      log('blue', `⬇️ Downloading ${path.basename(file.dest)}...`);
+      await downloadFile(file.url, file.dest);
+    }
+    
+    // Ensure the shell script is executable
+    const shPath = path.join(projectRoot, 'ai-protocol.sh');
+    if (fs.existsSync(shPath)) {
+      fs.chmodSync(shPath, 0o755);
+    }
+    
+    log('green', '✅ Update complete! AI Protocol is now up to date.');
+  } catch (err) {
+    log('red', `❌ Update failed: ${err.message}`);
   }
 }
 
@@ -222,7 +295,7 @@ function init() {
   log('green', '🎉 AI Protocol initialization complete!');
 }
 
-function check() {
+async function check() {
   log('cyan', '🔍 Running AI Protocol Compliance Check...');
   let hasError = false;
 
@@ -292,6 +365,8 @@ function check() {
   } else {
     log('yellow', '👀 Please review the warnings above to maintain peak AI efficiency.');
   }
+
+  await checkUpdate();
 }
 
 function prune() {
@@ -556,15 +631,21 @@ function help() {
   log('reset', `  handoff      Generate a session handover prompt`);
   log('reset', `  dashboard    Open the AI Second Brain Terminal Dashboard`);
   log('reset', `  install-hook Install git pre-commit hook`);
+  log('reset', `  update       Update AI Protocol to the latest version`);
 }
 
-switch (command) {
-  case 'init': init(); break;
-  case 'check': check(); break;
-  case 'prune': prune(); break;
-  case 'clean': clean(); break;
-  case 'handoff': handoff(); break;
-  case 'dashboard': dashboard(); break;
-  case 'install-hook': installHook(); break;
-  default: help(); break;
+async function run() {
+  switch (command) {
+    case 'init': await init(); break;
+    case 'check': await check(); break;
+    case 'prune': await prune(); break;
+    case 'clean': await clean(); break;
+    case 'handoff': await handoff(); break;
+    case 'dashboard': await dashboard(); break;
+    case 'install-hook': await installHook(); break;
+    case 'update': await update(); break;
+    default: help(); break;
+  }
 }
+
+run();
