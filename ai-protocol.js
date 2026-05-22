@@ -21,7 +21,11 @@ function log(color, msg) {
 }
 
 function ensureDir(dir) {
-  if (!fs.existsSync(dir)) {
+  if (fs.existsSync(dir)) {
+    if (!fs.statSync(dir).isDirectory()) {
+      throw new Error(`Path exists but is not a directory: ${dir}`);
+    }
+  } else {
     fs.mkdirSync(dir, { recursive: true });
   }
 }
@@ -44,14 +48,42 @@ function copyFolderSync(from, to) {
 
 function atomicWriteSync(filePath, content, options = {}) {
   const tempPath = `${filePath}.tmp.${Date.now()}`;
-  fs.writeFileSync(tempPath, content, options);
-  fs.renameSync(tempPath, filePath);
+  try {
+    fs.writeFileSync(tempPath, content, options);
+    try {
+      fs.renameSync(tempPath, filePath);
+    } catch (renameErr) {
+      if (renameErr.code === 'EBUSY' || renameErr.code === 'EPERM') {
+        fs.writeFileSync(filePath, content, options);
+        fs.unlinkSync(tempPath);
+      } else {
+        throw renameErr;
+      }
+    }
+  } catch (err) {
+    if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
+    throw err;
+  }
 }
 
 function atomicCopySync(srcPath, destPath) {
   const tempPath = `${destPath}.tmp.${Date.now()}`;
-  fs.copyFileSync(srcPath, tempPath);
-  fs.renameSync(tempPath, destPath);
+  try {
+    fs.copyFileSync(srcPath, tempPath);
+    try {
+      fs.renameSync(tempPath, destPath);
+    } catch (renameErr) {
+      if (renameErr.code === 'EBUSY' || renameErr.code === 'EPERM') {
+        fs.copyFileSync(tempPath, destPath);
+        fs.unlinkSync(tempPath);
+      } else {
+        throw renameErr;
+      }
+    }
+  } catch (err) {
+    if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
+    throw err;
+  }
 }
 
 function init() {
@@ -59,7 +91,7 @@ function init() {
   
   const targetDir = process.cwd();
   const sourceDir = __dirname;
-  const isSelf = targetDir === sourceDir;
+  const isSelf = path.resolve(targetDir).toLowerCase() === path.resolve(sourceDir).toLowerCase();
   
   if (isSelf) {
     log('yellow', '⚠️ Warning: Initializing inside the framework directory itself.');
@@ -176,7 +208,7 @@ function check() {
   // 2. Check STATE.md
   if (fs.existsSync('.ai/STATE.md')) {
     const state = fs.readFileSync('.ai/STATE.md', 'utf8');
-    const lines = state.split('\n').length;
+    const lines = state.split(/\r?\n/).length;
     if (lines > 20) {
       log('yellow', `⚠️ STATE.md is getting bloated (${lines} lines). Keep it under 20 lines for token efficiency.`);
       hasError = true;
@@ -216,7 +248,7 @@ function prune() {
   }
 
   const content = fs.readFileSync(refPath, 'utf8');
-  const sections = content.split(/^(?=### )/m);
+  const sections = content.split(/^(?=### |^- \*\*)/m);
   
   // First section is usually header
   const header = sections[0];
@@ -230,13 +262,14 @@ function prune() {
   const keep = entries.slice(0, 15);
   const archive = entries.slice(15);
   
-  atomicWriteSync(refPath, header + keep.join(''));
-  
   ensureDir('.ai/docs');
   if (!fs.existsSync(archPath)) {
     atomicWriteSync(archPath, '# 🗄️ Reflections Archive\n\n');
   }
+  
+  // Transactional Write: Archive first, then truncate original
   fs.appendFileSync(archPath, archive.join(''));
+  atomicWriteSync(refPath, header + keep.join(''));
   
   log('green', `✅ Pruned ${archive.length} entries and moved them to reflections_archive.md.`);
 }
@@ -299,7 +332,7 @@ function handoff() {
   let recentReflections = '*(No recent reflections logged)*';
   if (fs.existsSync('.ai/REFLECTIONS.md')) {
     const reflections = fs.readFileSync('.ai/REFLECTIONS.md', 'utf8');
-    const sections = reflections.split(/^(?=### )/m);
+    const sections = reflections.split(/^(?=### |^- \*\*)/m);
     const entries = sections.slice(1);
     if (entries.length > 0) {
       recentReflections = entries.slice(0, 5).join('').trim();
@@ -369,7 +402,7 @@ function dashboard() {
   log('cyan', '📍 PENDING TASKS (STATE.md)');
   if (fs.existsSync('.ai/STATE.md')) {
     const state = fs.readFileSync('.ai/STATE.md', 'utf8').trim();
-    const stateLines = state.split('\n').filter(line => line.trim() !== '' && !line.startsWith('# 📍 Active State') && !line.startsWith('*Last Updated'));
+    const stateLines = state.split(/\r?\n/).filter(line => line.trim() !== '' && !line.startsWith('# 📍 Active State') && !line.startsWith('*Last Updated'));
     console.log(stateLines.slice(0, 10).join('\n') || '  (No pending tasks)');
     if (stateLines.length > 10) console.log('... (truncated)');
   } else {
@@ -380,7 +413,7 @@ function dashboard() {
   log('yellow', '📚 RECENT REFLECTIONS');
   if (fs.existsSync('.ai/REFLECTIONS.md')) {
     const reflections = fs.readFileSync('.ai/REFLECTIONS.md', 'utf8');
-    const sections = reflections.split(/^(?=### )/m).slice(1);
+    const sections = reflections.split(/^(?=### |^- \*\*)/m).slice(1);
     if (sections.length > 0) {
       console.log(sections.slice(0, 3).join('').trim());
       if (sections.length > 3) console.log(`\n... (+${sections.length - 3} more entries)`);
@@ -396,7 +429,7 @@ function dashboard() {
   if (fs.existsSync('.ai/DECISIONS.md')) {
     const decisions = fs.readFileSync('.ai/DECISIONS.md', 'utf8').trim();
     if (!decisions.includes('No architectural decisions yet')) {
-      const decisionLines = decisions.split('\n').filter(line => line.trim() !== '' && !line.startsWith('# 🏗️ Architectural Decisions'));
+      const decisionLines = decisions.split(/\r?\n/).filter(line => line.trim() !== '' && !line.startsWith('# 🏗️ Architectural Decisions'));
       console.log(decisionLines.slice(0, 5).join('\n') || '  (No major decisions recorded yet)');
       if (decisionLines.length > 5) console.log('... (truncated)');
     } else {

@@ -2,6 +2,7 @@
 
 # AI Coding Protocol - CLI Wrapper
 # This script forwards commands to the ai-protocol.js Node.js script.
+set -euo pipefail
 
 # Ensure Node.js is installed
 if ! command -v node &> /dev/null
