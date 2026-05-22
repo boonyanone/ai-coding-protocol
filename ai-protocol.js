@@ -16,6 +16,26 @@ const COLORS = {
   cyan: "\x1b[36m",
 };
 
+function getProjectRoot() {
+  let current = process.cwd();
+  while (true) {
+    if (fs.existsSync(path.join(current, '.ai')) || fs.existsSync(path.join(current, '.git'))) {
+      return current;
+    }
+    const parent = path.dirname(current);
+    if (parent === current) {
+      break;
+    }
+    current = parent;
+  }
+  if (fs.existsSync(path.join(__dirname, '.ai'))) {
+    return __dirname;
+  }
+  return process.cwd();
+}
+
+const projectRoot = getProjectRoot();
+
 function log(color, msg) {
   console.log(`${COLORS[color]}${msg}${COLORS.reset}`);
 }
@@ -207,8 +227,9 @@ function check() {
   let hasError = false;
 
   // 1. Check .gitignore & Git active tracking for .env files
-  if (fs.existsSync('.gitignore')) {
-    const gitignore = fs.readFileSync('.gitignore', 'utf8');
+  const gitignorePath = path.join(projectRoot, '.gitignore');
+  if (fs.existsSync(gitignorePath)) {
+    const gitignore = fs.readFileSync(gitignorePath, 'utf8');
     const lines = gitignore.split(/\r?\n/).map(l => l.trim());
     if (!lines.includes('.env') && !lines.includes('*.env') && !lines.includes('.env.*')) {
       log('red', '❌ Security Warning: .env is missing from .gitignore!');
@@ -221,9 +242,10 @@ function check() {
   }
 
   // Active Git tracking check for .env* to prevent accidental commit of any secret files
-  if (fs.existsSync('.git')) {
+  const gitPath = path.join(projectRoot, '.git');
+  if (fs.existsSync(gitPath)) {
     try {
-      const trackedEnv = execSync('git ls-files ".env*"', { encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] }).trim();
+      const trackedEnv = execSync('git ls-files ".env*"', { cwd: projectRoot, encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] }).trim();
       if (trackedEnv) {
         const envFiles = trackedEnv.split(/\r?\n/).filter(f => !f.endsWith('.example') && !f.endsWith('.sample') && !f.endsWith('.template'));
         if (envFiles.length > 0) {
@@ -239,8 +261,9 @@ function check() {
   }
 
   // 2. Check STATE.md
-  if (fs.existsSync('.ai/STATE.md')) {
-    const state = fs.readFileSync('.ai/STATE.md', 'utf8');
+  const statePath = path.join(projectRoot, '.ai/STATE.md');
+  if (fs.existsSync(statePath)) {
+    const state = fs.readFileSync(statePath, 'utf8');
     const lines = state.split(/\r?\n/).length;
     if (lines > 20) {
       log('yellow', `⚠️ STATE.md is getting bloated (${lines} lines). Keep it under 20 lines for token efficiency.`);
@@ -251,8 +274,9 @@ function check() {
   }
 
   // 3. Check REFLECTIONS.md
-  if (fs.existsSync('.ai/REFLECTIONS.md')) {
-    const reflections = fs.readFileSync('.ai/REFLECTIONS.md', 'utf8');
+  const reflectionsPath = path.join(projectRoot, '.ai/REFLECTIONS.md');
+  if (fs.existsSync(reflectionsPath)) {
+    const reflections = fs.readFileSync(reflectionsPath, 'utf8');
     // Count entries (assuming they start with ### or - ** with optional leading whitespace)
     const entries = (reflections.match(/^[ \t]*(?:### |- \*\*)/gm) || []).length;
     if (entries > 15) {
@@ -272,8 +296,8 @@ function check() {
 
 function prune() {
   log('cyan', '🧹 Pruning REFLECTIONS.md...');
-  const refPath = '.ai/REFLECTIONS.md';
-  const archPath = '.ai/docs/reflections_archive.md';
+  const refPath = path.join(projectRoot, '.ai/REFLECTIONS.md');
+  const archPath = path.join(projectRoot, '.ai/docs/reflections_archive.md');
   
   if (!fs.existsSync(refPath)) {
     log('yellow', 'No REFLECTIONS.md found.');
@@ -295,7 +319,7 @@ function prune() {
   const keep = entries.slice(0, 15);
   const archive = entries.slice(15);
   
-  ensureDir('.ai/docs');
+  ensureDir(path.join(projectRoot, '.ai/docs'));
   if (!fs.existsSync(archPath)) {
     atomicWriteSync(archPath, '# 🗄️ Reflections Archive\n\n');
   }
@@ -309,37 +333,39 @@ function prune() {
 
 function clean() {
   log('cyan', '🧼 Cleaning STATE.md for a new session...');
-  ensureDir('.ai/docs/state_history');
+  ensureDir(path.join(projectRoot, '.ai/docs/state_history'));
   
-  if (fs.existsSync('.ai/STATE.md')) {
+  const statePath = path.join(projectRoot, '.ai/STATE.md');
+  if (fs.existsSync(statePath)) {
     const date = new Date().toISOString().replace(/[:.]/g, '-');
-    const backupPath = `.ai/docs/state_history/STATE_${date}.md`;
+    const backupPath = path.join(projectRoot, `.ai/docs/state_history/STATE_${date}.md`);
     try {
-      atomicCopySync('.ai/STATE.md', backupPath);
+      atomicCopySync(statePath, backupPath);
       log('green', `✅ Backed up current STATE.md to ${backupPath}`);
     } catch (err) {
       log('yellow', `⚠️ Warning: Failed to backup STATE.md: ${err.message}`);
     }
   }
 
-  const templatePath = '.ai/templates/STATE.template.md';
+  const templatePath = path.join(projectRoot, '.ai/templates/STATE.template.md');
   if (fs.existsSync(templatePath)) {
-    atomicCopySync(templatePath, '.ai/STATE.md');
+    atomicCopySync(templatePath, statePath);
     log('green', `✅ Reset STATE.md from template.`);
   } else {
-    atomicWriteSync('.ai/STATE.md', '# 📍 Active State (RAM)\n\n## 🚀 Current Objective\n\n## 📋 Action Plan\n');
+    atomicWriteSync(statePath, '# 📍 Active State (RAM)\n\n## 🚀 Current Objective\n\n## 📋 Action Plan\n');
     log('yellow', `⚠️ Template not found. Created generic STATE.md.`);
   }
 }
 
 function installHook() {
   log('cyan', '🪝 Installing Git pre-commit hook...');
-  if (!fs.existsSync('.git')) {
+  const gitPath = path.join(projectRoot, '.git');
+  if (!fs.existsSync(gitPath)) {
     log('red', '❌ Error: .git directory not found. Please run "git init" first.');
     return;
   }
-  ensureDir('.git/hooks');
-  const hookPath = '.git/hooks/pre-commit';
+  ensureDir(path.join(projectRoot, '.git/hooks'));
+  const hookPath = path.join(projectRoot, '.git/hooks/pre-commit');
   const hookLine = './ai-protocol.sh check';
   
   if (fs.existsSync(hookPath)) {
@@ -377,14 +403,16 @@ exit 0
 function handoff() {
   log('cyan', '🤝 Generating AI Handoff Prompt...');
 
+  const statePath = path.join(projectRoot, '.ai/STATE.md');
   let stateContent = '*(No active state found)*';
-  if (fs.existsSync('.ai/STATE.md')) {
-    stateContent = fs.readFileSync('.ai/STATE.md', 'utf8').trim();
+  if (fs.existsSync(statePath)) {
+    stateContent = fs.readFileSync(statePath, 'utf8').trim();
   }
 
+  const reflectionsPath = path.join(projectRoot, '.ai/REFLECTIONS.md');
   let recentReflections = '*(No recent reflections logged)*';
-  if (fs.existsSync('.ai/REFLECTIONS.md')) {
-    const reflections = fs.readFileSync('.ai/REFLECTIONS.md', 'utf8');
+  if (fs.existsSync(reflectionsPath)) {
+    const reflections = fs.readFileSync(reflectionsPath, 'utf8');
     const sections = reflections.split(/^(?=[ \t]*(?:### |- \*\*))/m);
     const entries = sections.slice(1);
     if (entries.length > 0) {
@@ -394,7 +422,7 @@ function handoff() {
 
   let gitStatus = '*(No changes)*';
   try {
-    gitStatus = execSync('git status -s', { encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] }).trim();
+    gitStatus = execSync('git status -s', { cwd: projectRoot, encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] }).trim();
     if (gitStatus) {
       const gitLines = gitStatus.split(/\r?\n/);
       if (gitLines.length > 20) {
@@ -407,9 +435,10 @@ function handoff() {
     gitStatus = '*(Git not initialized or not found)*';
   }
 
+  const decisionsPath = path.join(projectRoot, '.ai/DECISIONS.md');
   let decisionsContent = '*(No architectural decisions found)*';
-  if (fs.existsSync('.ai/DECISIONS.md')) {
-    const decisions = fs.readFileSync('.ai/DECISIONS.md', 'utf8').trim();
+  if (fs.existsSync(decisionsPath)) {
+    const decisions = fs.readFileSync(decisionsPath, 'utf8').trim();
     // Only include if it has actual entries (not just the empty template)
     if (!decisions.includes('No architectural decisions yet')) {
       decisionsContent = decisions;
@@ -450,8 +479,8 @@ ${gitStatus || 'No uncommitted changes.'}
 `;
 
   try {
-    ensureDir('.ai');
-    atomicWriteSync('.ai/HANDOFF.md', handoffPrompt);
+    ensureDir(path.join(projectRoot, '.ai'));
+    atomicWriteSync(path.join(projectRoot, '.ai/HANDOFF.md'), handoffPrompt);
     log('green', '✅ Handoff prompt generated and saved to .ai/HANDOFF.md!');
     log('cyan', '👉 Please open .ai/HANDOFF.md, copy all contents, and paste it into your new AI session.');
   } catch (err) {
@@ -469,8 +498,9 @@ function dashboard() {
   log('blue', '==================================================\n');
 
   log('cyan', '📍 PENDING TASKS (STATE.md)');
-  if (fs.existsSync('.ai/STATE.md')) {
-    const state = fs.readFileSync('.ai/STATE.md', 'utf8').trim();
+  const statePath = path.join(projectRoot, '.ai/STATE.md');
+  if (fs.existsSync(statePath)) {
+    const state = fs.readFileSync(statePath, 'utf8').trim();
     const stateLines = state.split(/\r?\n/).filter(line => line.trim() !== '' && !line.startsWith('# 📍 Active State') && !line.startsWith('*Last Updated'));
     console.log(stateLines.slice(0, 10).join('\n') || '  (No pending tasks)');
     if (stateLines.length > 10) console.log('... (truncated)');
@@ -480,8 +510,9 @@ function dashboard() {
   console.log('\n');
 
   log('yellow', '📚 RECENT REFLECTIONS');
-  if (fs.existsSync('.ai/REFLECTIONS.md')) {
-    const reflections = fs.readFileSync('.ai/REFLECTIONS.md', 'utf8');
+  const reflectionsPath = path.join(projectRoot, '.ai/REFLECTIONS.md');
+  if (fs.existsSync(reflectionsPath)) {
+    const reflections = fs.readFileSync(reflectionsPath, 'utf8');
     const sections = reflections.split(/^(?=[ \t]*(?:### |- \*\*))/m).slice(1);
     if (sections.length > 0) {
       console.log(sections.slice(0, 3).join('').trim());
@@ -495,8 +526,9 @@ function dashboard() {
   console.log('\n');
   
   log('green', '🏗️ ARCHITECTURE DECISIONS');
-  if (fs.existsSync('.ai/DECISIONS.md')) {
-    const decisions = fs.readFileSync('.ai/DECISIONS.md', 'utf8').trim();
+  const decisionsPath = path.join(projectRoot, '.ai/DECISIONS.md');
+  if (fs.existsSync(decisionsPath)) {
+    const decisions = fs.readFileSync(decisionsPath, 'utf8').trim();
     if (!decisions.includes('No architectural decisions yet')) {
       const decisionLines = decisions.split(/\r?\n/).filter(line => line.trim() !== '' && !line.startsWith('# 🏗️ Architectural Decisions'));
       console.log(decisionLines.slice(0, 5).join('\n') || '  (No major decisions recorded yet)');
