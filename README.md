@@ -10,6 +10,16 @@ This protocol combines cutting-edge AI development concepts like **Superpowers**
 
 ---
 
+## 🌟 Why Use This? (vs. Other Tools)
+
+There are many prompt collections and AI agents on GitHub, but this protocol is fundamentally different. It acts as an **Active Governance Framework** for your existing IDE (Cursor, Windsurf, Cline).
+
+- ❌ **Static Prompts (Awesome-CursorRules):** Just text files that AI often ignores as context grows.
+- ❌ **Standalone Agents (Aider, OpenHands):** Force you to leave your IDE to run separate CLI tools.
+- ✅ **Our Protocol:** Works *inside* your IDE. It's a living system with active memory management (`STATE.md`), safety pre-commit hooks, automated context pruning, one-click session handoffs, and an Auto-Updater. It turns your IDE's AI into a disciplined Senior Developer.
+
+---
+
 ## 📁 1. The Second Brain (.ai/ Directory)
 
 We separate the AI's memory into **RAM** (short, concise, read every session) and **Hard Drive** (read only when needed):
@@ -136,6 +146,9 @@ Ensure Node.js is installed.
 
 # Install a git pre-commit hook to block commits if safety checks fail
 ./ai-protocol.sh install-hook
+
+# Update the AI Protocol to the latest version directly from GitHub
+./ai-protocol.sh update
 ```
 
 ---
