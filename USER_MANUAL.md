@@ -10,7 +10,9 @@ Welcome to the **AI Coding Protocol** in-depth manual. This guide will teach you
 3. [The AI Daily Workflow](#3-the-ai-daily-workflow)
 4. [Managing AI Memory (RAM & Reflexion)](#4-managing-ai-memory-ram--reflexion)
 5. [AI Session Handoff](#5-ai-session-handoff)
-6. [CLI Commands Reference](#6-cli-commands-reference)
+6. [AI Terminal Dashboard](#6-ai-terminal-dashboard)
+7. [Deep-Dive Security (Atomic Writes)](#7-deep-dive-security-atomic-writes)
+8. [CLI Commands Reference](#8-cli-commands-reference)
 
 ---
 
@@ -112,7 +114,34 @@ But how do you retain context? Use the **Handoff** command.
 
 ---
 
-## 6. CLI Commands Reference
+## 6. AI Terminal Dashboard
+
+If you want to quickly view the overall project status without opening individual files inside `.ai/`, you can use the interactive dashboard:
+
+```bash
+./ai-protocol.sh dashboard
+```
+
+**What the Dashboard Displays:**
+- **📍 Pending Tasks:** Quick summary of active tasks and action steps (from `STATE.md`).
+- **📚 Recent Reflections:** The latest lessons learned to prevent recurring bugs.
+- **🏗️ Architecture Decisions:** Major technology choices logged in `DECISIONS.md`.
+
+This gives developers a 1-second mental synchronization with the AI's current state!
+
+---
+
+## 7. Deep-Dive Security (Atomic Writes)
+
+The AI Coding Protocol uses an advanced underlying robust infrastructure to prevent data corruption and IDE race conditions:
+
+1. **Transactional Pruning:** When running `prune`, older entries are fully written to the archive file *before* the active RAM file is truncated. This eliminates the risk of data loss if a process crashes mid-execution.
+2. **Atomic Write Fallbacks:** On Windows, aggressive indexers and IDEs (like VS Code) often lock active files. If the script encounters an `EBUSY` lock during a standard rename, it automatically triggers a fallback mechanism to write data safely and clean up orphaned `.tmp` files.
+3. **Cross-Platform Formatting:** Completely normalized handling for Windows Carriage Returns (`\r\n`), ensuring 100% accurate regex parsing for handoffs and formatting.
+
+---
+
+## 8. CLI Commands Reference
 
 You can access these tools by running `./ai-protocol.sh [command]` in your project root:
 
