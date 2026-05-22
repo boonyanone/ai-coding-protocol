@@ -53,9 +53,12 @@ function atomicWriteSync(filePath, content, options = {}) {
     try {
       fs.renameSync(tempPath, filePath);
     } catch (renameErr) {
-      if (renameErr.code === 'EBUSY' || renameErr.code === 'EPERM') {
-        fs.writeFileSync(filePath, content, options);
-        fs.unlinkSync(tempPath);
+      if (renameErr.code === 'EBUSY' || renameErr.code === 'EPERM' || renameErr.code === 'EACCES') {
+        try {
+          fs.writeFileSync(filePath, content, options);
+        } finally {
+          if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
+        }
       } else {
         throw renameErr;
       }
@@ -73,9 +76,12 @@ function atomicCopySync(srcPath, destPath) {
     try {
       fs.renameSync(tempPath, destPath);
     } catch (renameErr) {
-      if (renameErr.code === 'EBUSY' || renameErr.code === 'EPERM') {
-        fs.copyFileSync(tempPath, destPath);
-        fs.unlinkSync(tempPath);
+      if (renameErr.code === 'EBUSY' || renameErr.code === 'EPERM' || renameErr.code === 'EACCES') {
+        try {
+          fs.copyFileSync(tempPath, destPath);
+        } finally {
+          if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
+        }
       } else {
         throw renameErr;
       }
@@ -192,7 +198,7 @@ function check() {
   log('cyan', '🔍 Running AI Protocol Compliance Check...');
   let hasError = false;
 
-  // 1. Check .gitignore
+  // 1. Check .gitignore & Git active tracking for .env
   if (fs.existsSync('.gitignore')) {
     const gitignore = fs.readFileSync('.gitignore', 'utf8');
     if (!gitignore.includes('.env')) {
@@ -203,6 +209,17 @@ function check() {
     }
   } else {
     log('yellow', '⚠️ No .gitignore found.');
+  }
+
+  // Active Git tracking check for .env to prevent accidental commit
+  if (fs.existsSync('.git')) {
+    try {
+      execSync('git ls-files --error-unmatch .env', { stdio: 'ignore' });
+      log('red', '❌ Security Danger: .env file is currently tracked by Git! Run "git rm --cached .env" immediately to stop tracking it.');
+      hasError = true;
+    } catch (e) {
+      // .env is not tracked, which is safe!
+    }
   }
 
   // 2. Check STATE.md
@@ -220,8 +237,8 @@ function check() {
   // 3. Check REFLECTIONS.md
   if (fs.existsSync('.ai/REFLECTIONS.md')) {
     const reflections = fs.readFileSync('.ai/REFLECTIONS.md', 'utf8');
-    // Count entries (assuming they start with ### or - **)
-    const entries = (reflections.match(/^### |^- \*\*/gm) || []).length;
+    // Count entries (assuming they start with ### or - ** with optional leading whitespace)
+    const entries = (reflections.match(/^[ \t]*(?:### |- \*\*)/gm) || []).length;
     if (entries > 15) {
       log('yellow', `⚠️ REFLECTIONS.md has ${entries} entries (Limit: 15). Run 'ai-protocol prune' to archive older entries.`);
       hasError = true;
@@ -248,7 +265,7 @@ function prune() {
   }
 
   const content = fs.readFileSync(refPath, 'utf8');
-  const sections = content.split(/^(?=### |^- \*\*)/m);
+  const sections = content.split(/^(?=[ \t]*(?:### |- \*\*))/m);
   
   // First section is usually header
   const header = sections[0];
@@ -281,8 +298,12 @@ function clean() {
   if (fs.existsSync('.ai/STATE.md')) {
     const date = new Date().toISOString().replace(/[:.]/g, '-');
     const backupPath = `.ai/docs/state_history/STATE_${date}.md`;
-    fs.copyFileSync('.ai/STATE.md', backupPath);
-    log('green', `✅ Backed up current STATE.md to ${backupPath}`);
+    try {
+      atomicCopySync('.ai/STATE.md', backupPath);
+      log('green', `✅ Backed up current STATE.md to ${backupPath}`);
+    } catch (err) {
+      log('yellow', `⚠️ Warning: Failed to backup STATE.md: ${err.message}`);
+    }
   }
 
   const templatePath = '.ai/templates/STATE.template.md';
@@ -303,11 +324,27 @@ function installHook() {
   }
   ensureDir('.git/hooks');
   const hookPath = '.git/hooks/pre-commit';
-  const hookContent = `#!/bin/sh
-# AI Protocol Pre-commit Hook
+  const hookLine = './ai-protocol.sh check';
+  
+  if (fs.existsSync(hookPath)) {
+    const currentContent = fs.readFileSync(hookPath, 'utf8');
+    if (currentContent.includes('ai-protocol.sh check') || currentContent.includes('ai-protocol check')) {
+      log('green', '✅ Pre-commit hook already contains AI Protocol check. Skipping.');
+      return;
+    }
+    // Append to existing hook safely without overwriting user scripts
+    const newContent = currentContent.endsWith('\n') 
+      ? `${currentContent}\n# AI Coding Protocol Hook\n${hookLine}\n`
+      : `${currentContent}\n\n# AI Coding Protocol Hook\n${hookLine}\n`;
+    atomicWriteSync(hookPath, newContent, { mode: 0o755 });
+    log('green', '✅ Pre-commit hook updated with AI Protocol check (Appended safely).');
+  } else {
+    // Create new hook
+    const hookContent = `#!/bin/sh
+# AI Coding Protocol Pre-commit Hook
 
 echo "🤖 Running AI Protocol Check..."
-./ai-protocol.sh check
+${hookLine}
 
 if [ $? -ne 0 ]; then
   echo "❌ AI Protocol Check Failed. Please fix the warnings."
@@ -316,9 +353,9 @@ if [ $? -ne 0 ]; then
 fi
 exit 0
 `;
-  
-  atomicWriteSync(hookPath, hookContent, { mode: 0o755 });
-  log('green', '✅ Pre-commit hook installed successfully! (Currently non-blocking)');
+    atomicWriteSync(hookPath, hookContent, { mode: 0o755 });
+    log('green', '✅ Pre-commit hook installed successfully! (Currently non-blocking)');
+  }
 }
 
 function handoff() {
@@ -332,7 +369,7 @@ function handoff() {
   let recentReflections = '*(No recent reflections logged)*';
   if (fs.existsSync('.ai/REFLECTIONS.md')) {
     const reflections = fs.readFileSync('.ai/REFLECTIONS.md', 'utf8');
-    const sections = reflections.split(/^(?=### |^- \*\*)/m);
+    const sections = reflections.split(/^(?=[ \t]*(?:### |- \*\*))/m);
     const entries = sections.slice(1);
     if (entries.length > 0) {
       recentReflections = entries.slice(0, 5).join('').trim();
@@ -342,6 +379,14 @@ function handoff() {
   let gitStatus = '*(No changes)*';
   try {
     gitStatus = execSync('git status -s', { encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] }).trim();
+    if (gitStatus) {
+      const gitLines = gitStatus.split(/\r?\n/);
+      if (gitLines.length > 20) {
+        gitStatus = gitLines.slice(0, 20).join('\n') + `\n... (+${gitLines.length - 20} more files)`;
+      }
+    } else {
+      gitStatus = 'No uncommitted changes.';
+    }
   } catch (err) {
     gitStatus = '*(Git not initialized or not found)*';
   }
@@ -413,7 +458,7 @@ function dashboard() {
   log('yellow', '📚 RECENT REFLECTIONS');
   if (fs.existsSync('.ai/REFLECTIONS.md')) {
     const reflections = fs.readFileSync('.ai/REFLECTIONS.md', 'utf8');
-    const sections = reflections.split(/^(?=### |^- \*\*)/m).slice(1);
+    const sections = reflections.split(/^(?=[ \t]*(?:### |- \*\*))/m).slice(1);
     if (sections.length > 0) {
       console.log(sections.slice(0, 3).join('').trim());
       if (sections.length > 3) console.log(`\n... (+${sections.length - 3} more entries)`);
