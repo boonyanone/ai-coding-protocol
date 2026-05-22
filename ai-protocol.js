@@ -34,7 +34,10 @@ function copyFolderSync(from, to) {
     if (fs.lstatSync(fromPath).isDirectory()) {
       copyFolderSync(fromPath, toPath);
     } else {
-      fs.copyFileSync(fromPath, toPath);
+      // Safety check: Do not overwrite existing files to protect user's custom docs/prompts
+      if (!fs.existsSync(toPath)) {
+        fs.copyFileSync(fromPath, toPath);
+      }
     }
   });
 }
@@ -77,7 +80,17 @@ function init() {
         ensureDir(path.join(targetDir, '.github'));
         fs.copyFileSync(cursorrulesSrc, path.join(targetDir, '.github/copilot-instructions.md'));
         
+        // Copy CLI Scripts to target directory so user can run them locally
+        const shSrc = path.join(sourceDir, 'ai-protocol.sh');
+        const jsSrc = path.join(sourceDir, 'ai-protocol.js');
+        if (fs.existsSync(shSrc) && fs.existsSync(jsSrc)) {
+          fs.copyFileSync(shSrc, path.join(targetDir, 'ai-protocol.sh'));
+          fs.copyFileSync(jsSrc, path.join(targetDir, 'ai-protocol.js'));
+          fs.chmodSync(path.join(targetDir, 'ai-protocol.sh'), 0o755);
+        }
+        
         log('green', '✅ Created multi-IDE config files (.cursorrules, .windsurfrules, .clinerules, .clauderules, .claudecoderc, SKILL.md, copilot-instructions.md).');
+        log('green', '✅ Installed ai-protocol.sh CLI tool in your project.');
       }
       
       log('green', '✅ Copied templates, prompts, and docs successfully.');
@@ -225,7 +238,7 @@ function installHook() {
 # AI Protocol Pre-commit Hook
 
 echo "🤖 Running AI Protocol Check..."
-node ./ai-protocol.js check
+./ai-protocol.sh check
 
 if [ $? -ne 0 ]; then
   echo "❌ AI Protocol Check Failed. Please fix the warnings."
