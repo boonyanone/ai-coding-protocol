@@ -5,7 +5,7 @@ const path = require('path');
 const { execSync, execFileSync } = require('child_process');
 const https = require('https');
 
-const PROTOCOL_VERSION = "1.0.0";
+const PROTOCOL_VERSION = "1.1.0";
 
 const args = process.argv.slice(2);
 const command = args[0];
@@ -181,7 +181,7 @@ async function update() {
 
   try {
     for (const file of filesToUpdate) {
-      log('blue', `⬇️ Downloading ${path.basename(file.dest)}...`);
+      log('blue', `⬇�� Downloading ${path.basename(file.dest)}...`);
       // Only validate syntax for ai-protocol.js
       const requiresValidation = file.dest.endsWith('ai-protocol.js');
       await downloadFile(file.url, file.dest, requiresValidation);
@@ -748,6 +748,21 @@ async function authMcp() {
   }
 }
 
+function globalInstall() {
+  log('cyan', '🌍 Installing AI Protocol Globally...');
+  if (!fs.existsSync(path.join(projectRoot, 'package.json'))) {
+    log('red', '❌ package.json not found. Cannot create global link.');
+    return;
+  }
+  try {
+    execFileSync('npm', ['link'], { cwd: projectRoot, stdio: 'inherit' });
+    log('green', '\n✅ Global install successful!');
+    log('cyan', '👉 You can now run `ai-protocol` from any folder on your Mac without the "./"');
+  } catch (error) {
+    log('red', `❌ Global installation failed: ${error.message}`);
+  }
+}
+
 function help() {
   log('blue', `🤖 AI Coding Protocol CLI Tool`);
   log('reset', `Usage: ./ai-protocol.sh [command]\n`);
@@ -762,6 +777,7 @@ function help() {
   log('reset', `  install-mcp  Install NotebookLM MCP Server for Deep Research`);
   log('reset', `  auth-mcp     Launch browser to authenticate NotebookLM MCP`);
   log('reset', `  update       Update AI Protocol to the latest version`);
+  log('reset', `  global-install Make ai-protocol available as a global command`);
 }
 
 async function run() {
@@ -776,6 +792,7 @@ async function run() {
     case 'install-mcp': await installMcp(); break;
     case 'auth-mcp': await authMcp(); break;
     case 'update': await update(); break;
+    case 'global-install': await globalInstall(); break;
     default: help(); break;
   }
 }
