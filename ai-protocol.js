@@ -10,7 +10,7 @@ const https = require('https');
 // If you are an AI Agent adding a new feature or fixing a bug in this file,
 // you MUST increment the PROTOCOL_VERSION below AND the version in package.json.
 // ============================================================================
-const PROTOCOL_VERSION = "1.1.6";
+const PROTOCOL_VERSION = "1.1.8";
 
 const args = process.argv.slice(2);
 const command = args[0];
@@ -692,8 +692,12 @@ async function installMcp() {
         for (const file of files) {
           const filePath = path.join(srcDir, file);
           let content = fs.readFileSync(filePath, 'utf8');
+          // Add fileURLToPath import for ESM __dirname equivalent if not present
+          if (!content.includes('fileURLToPath')) {
+            content = "import { fileURLToPath } from 'url';\n" + content;
+          }
           // 1. Replace all variations of home/.notebooklm-mcp path resolutions robustly
-          content = content.replace(/path\.join\(\s*(?:home|os\.homedir\(\))\s*,\s*['"`]\.notebooklm-mcp['"`]/g, "path.join(process.cwd(), '.ai', 'mcp', 'auth'");
+          content = content.replace(/path\.join\(\s*(?:home|os\.homedir\(\))\s*,\s*['"`]\.notebooklm-mcp['"`]/g, "path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..', 'auth'");
           // 2. Harden file permissions: force auth.json to be created with 0o600 (owner read/write only)
           content = content.replace(/fs\.writeFileSync\(\s*authPath\s*,\s*JSON\.stringify\(\s*authData\s*,\s*null\s*,\s*2\s*\)\s*\)/g, "fs.writeFileSync(authPath, JSON.stringify(authData, null, 2), { mode: 0o600 })");
           // 3. Fix confusing UI logs to show the accurate project-local path
