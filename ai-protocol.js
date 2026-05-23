@@ -10,7 +10,7 @@ const https = require('https');
 // If you are an AI Agent adding a new feature or fixing a bug in this file,
 // you MUST increment the PROTOCOL_VERSION below AND the version in package.json.
 // ============================================================================
-const PROTOCOL_VERSION = "1.1.5";
+const PROTOCOL_VERSION = "1.1.6";
 
 const args = process.argv.slice(2);
 const command = args[0];
@@ -196,6 +196,12 @@ async function update() {
     const shPath = path.join(projectRoot, 'ai-protocol.sh');
     if (fs.existsSync(shPath)) {
       fs.chmodSync(shPath, 0o755);
+    }
+    
+    // Ensure the JS script remains executable for global CLI usage
+    const jsPath = path.join(projectRoot, 'ai-protocol.js');
+    if (fs.existsSync(jsPath)) {
+      fs.chmodSync(jsPath, 0o755);
     }
     
     log('green', '✅ Update complete! AI Protocol is now up to date.');
@@ -662,12 +668,21 @@ async function installMcp() {
 
     if (fs.existsSync(mcpDir)) {
       log('yellow', `⚠️ MCP directory already exists. Pulling latest updates...`);
+      // Reset local changes first, otherwise git pull will abort due to our patches!
+      execFileSync('git', ['reset', '--hard'], { cwd: mcpDir, stdio: 'ignore' });
       execFileSync('git', ['pull'], { cwd: mcpDir, stdio: 'inherit' });
     } else {
       fs.mkdirSync(path.join(projectRoot, '.ai', 'mcp'), { recursive: true });
       log('reset', 'Cloning repository...');
       execFileSync('git', ['clone', 'https://github.com/jackc1111/antigravity-notebooklm-mcp.git', mcpDir], { stdio: 'inherit' });
     }
+    
+    // Pre-create the credentials directory as a secure OS-level vault (Defense-in-Depth)
+    const authDir = path.join(projectRoot, '.ai', 'mcp', 'auth');
+    if (!fs.existsSync(authDir)) {
+      fs.mkdirSync(authDir, { recursive: true });
+    }
+    fs.chmodSync(authDir, 0o700);
     
     log('reset', 'Patching MCP to use project-local authentication...');
     try {
