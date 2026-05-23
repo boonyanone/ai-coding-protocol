@@ -2,7 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
+const { execSync, execFileSync } = require('child_process');
 const https = require('https');
 
 const PROTOCOL_VERSION = "1.0.0";
@@ -115,7 +115,7 @@ function atomicCopySync(srcPath, destPath) {
   }
 }
 
-function downloadFile(url, dest) {
+function downloadFile(url, dest, validateSyntax = false) {
   return new Promise((resolve, reject) => {
     const req = https.get(url, (res) => {
       if (res.statusCode !== 200) {
@@ -125,6 +125,18 @@ function downloadFile(url, dest) {
       res.on('data', (chunk) => { data += chunk; });
       res.on('end', () => {
         try {
+          if (validateSyntax) {
+            // Write to a temporary file to validate syntax
+            const tempDest = `${dest}.validate.${Date.now()}`;
+            fs.writeFileSync(tempDest, data);
+            try {
+              execFileSync('node', ['-c', tempDest], { stdio: 'ignore' });
+            } catch (err) {
+              fs.unlinkSync(tempDest);
+              return reject(new Error(`Syntax error in downloaded file ${url}. Aborting update to prevent corruption.`));
+            }
+            fs.unlinkSync(tempDest);
+          }
           atomicWriteSync(dest, data);
           resolve();
         } catch (e) {
@@ -170,7 +182,9 @@ async function update() {
   try {
     for (const file of filesToUpdate) {
       log('blue', `⬇️ Downloading ${path.basename(file.dest)}...`);
-      await downloadFile(file.url, file.dest);
+      // Only validate syntax for ai-protocol.js
+      const requiresValidation = file.dest.endsWith('ai-protocol.js');
+      await downloadFile(file.url, file.dest, requiresValidation);
     }
     
     // Ensure the shell script is executable
@@ -643,11 +657,11 @@ async function installMcp() {
 
     if (fs.existsSync(mcpDir)) {
       log('yellow', `⚠️ MCP directory already exists. Pulling latest updates...`);
-      execSync('git pull', { cwd: mcpDir, stdio: 'inherit' });
+      execFileSync('git', ['pull'], { cwd: mcpDir, stdio: 'inherit' });
     } else {
       fs.mkdirSync(path.join(projectRoot, '.ai', 'mcp'), { recursive: true });
       log('reset', 'Cloning repository...');
-      execSync(`git clone https://github.com/jackc1111/antigravity-notebooklm-mcp.git "${mcpDir}"`, { stdio: 'inherit' });
+      execFileSync('git', ['clone', 'https://github.com/jackc1111/antigravity-notebooklm-mcp.git', mcpDir], { stdio: 'inherit' });
     }
     
     log('reset', 'Installing dependencies...');
@@ -728,7 +742,7 @@ async function authMcp() {
   }
   log('blue', '🚀 Launching Browser for Authentication...');
   try {
-    execSync(`node "${authScript}"`, { stdio: 'inherit' });
+    execFileSync('node', [authScript], { stdio: 'inherit' });
   } catch (error) {
     log('red', `❌ Authentication process failed or was interrupted.`);
   }
