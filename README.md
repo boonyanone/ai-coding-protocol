@@ -28,6 +28,21 @@ It provides:
 
 ---
 
+## ✨ Killer Feature: Deep Research Hub (NotebookLM)
+
+Say goodbye to **"Pasting massive documents into the IDE and breaking the chat context"**! 
+Our framework comes with built-in **NotebookLM MCP** support, installable with a single command (`./ai-protocol.sh install-mcp`).
+
+**How does it work?**
+Instead of forcing the AI inside your IDE to read a 10,000-line API Reference directly, the AI will upload that document into your personal Google NotebookLM account. The IDE's AI will then "chat" with NotebookLM to extract only the specific information it needs to write code.
+
+**🔥 Key Advantages:**
+- **Massive Token Savings:** Stop paying expensive token costs for scanning the same massive reference documents in every new chat session.
+- **Context Preservation:** Your IDE chat remains lightning fast and focused, preventing AI amnesia.
+- **Enhanced Accuracy:** NotebookLM is purpose-built by Google for large-scale document RAG (Retrieval-Augmented Generation), providing much more accurate answers than raw IDE context injection.
+
+---
+
 ## 📁 1. The Second Brain (.ai/ Directory)
 
 We separate the AI's memory into **RAM** (short, concise, read every session) and **Hard Drive** (read only when needed):
