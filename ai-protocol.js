@@ -10,7 +10,7 @@ const https = require('https');
 // If you are an AI Agent adding a new feature or fixing a bug in this file,
 // you MUST increment the PROTOCOL_VERSION below AND the version in package.json.
 // ============================================================================
-const PROTOCOL_VERSION = "1.1.2";
+const PROTOCOL_VERSION = "1.1.3";
 
 const args = process.argv.slice(2);
 const command = args[0];
@@ -669,6 +669,23 @@ async function installMcp() {
       execFileSync('git', ['clone', 'https://github.com/jackc1111/antigravity-notebooklm-mcp.git', mcpDir], { stdio: 'inherit' });
     }
     
+    log('reset', 'Patching MCP to use project-local authentication...');
+    try {
+      const authFiles = [
+        path.join(mcpDir, 'src', 'browser-auth.ts'),
+        path.join(mcpDir, 'src', 'index.ts')
+      ];
+      for (const file of authFiles) {
+        if (fs.existsSync(file)) {
+          let content = fs.readFileSync(file, 'utf8');
+          content = content.replace(/path\.join\(os\.homedir\(\),\s*'\.notebooklm-mcp'\)/g, "path.join(process.cwd(), '.ai', 'mcp', 'auth')");
+          fs.writeFileSync(file, content, 'utf8');
+        }
+      }
+    } catch (err) {
+      log('yellow', `⚠️ Failed to patch MCP auth directory: ${err.message}`);
+    }
+
     log('reset', 'Installing dependencies...');
     execSync('npm install', { cwd: mcpDir, stdio: 'inherit' });
     
