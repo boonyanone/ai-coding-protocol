@@ -11,8 +11,9 @@ Welcome to the **AI Coding Protocol** in-depth manual. This guide will teach you
 4. [Managing AI Memory (RAM & Reflexion)](#4-managing-ai-memory-ram--reflexion)
 5. [AI Session Handoff](#5-ai-session-handoff)
 6. [AI Terminal Dashboard](#6-ai-terminal-dashboard)
-7. [Deep-Dive Security (Atomic Writes)](#7-deep-dive-security-atomic-writes)
-8. [CLI Commands Reference](#8-cli-commands-reference)
+7. [Deep Research Hub (NotebookLM MCP)](#7-deep-research-hub-notebooklm-mcp)
+8. [Deep-Dive Security (Atomic Writes)](#8-deep-dive-security-atomic-writes)
+9. [CLI Commands Reference](#9-cli-commands-reference)
 
 ---
 
@@ -143,7 +144,25 @@ This gives developers a 1-second mental synchronization with the AI's current st
 
 ---
 
-## 7. Deep-Dive Security (Atomic Writes)
+## 7. Deep Research Hub (NotebookLM MCP)
+
+**When to use:** You have a massive document, API reference, or manual (thousands of lines long) and you don't want to paste it directly into your IDE, which would bloat your context and consume excessive tokens.
+
+**✨ What is it and how does it help?**
+We have integrated the **NotebookLM MCP** directly into the protocol to act as your project's "Deep Research Assistant"!
+- 💰 **Extreme Token Savings:** Instead of reading a 10,000-line file, the AI in your IDE will "chat" with NotebookLM to extract only the necessary information.
+- 🧠 **Context Preservation:** Your chat remains fast and fluid because the heavy lifting of reading massive files is offloaded to Google's servers.
+- 📚 **Seamless Integration:** Once installed, your IDE's AI (Cursor/Windsurf) can automatically create notebooks, upload files/links, and retrieve summaries to write code without you ever leaving the editor!
+
+**📝 How to Install and Use:**
+1. **Install (One-time):** Run `./ai-protocol.sh install-mcp` in your project terminal.
+2. **Authenticate:** Run `node .ai/mcp/notebooklm/build/browser-auth.js` as prompted to securely link your Google account.
+3. **Usage:** In your Cursor/Windsurf chat, simply tell the AI:
+   > *"Please load the document from this link [insert link] into a new NotebookLM notebook, and then summarize how to use this component for me."*
+
+---
+
+## 8. Deep-Dive Security (Atomic Writes)
 
 The AI Coding Protocol uses an advanced underlying robust infrastructure to prevent data corruption and IDE race conditions:
 
@@ -153,7 +172,7 @@ The AI Coding Protocol uses an advanced underlying robust infrastructure to prev
 
 ---
 
-## 8. CLI Commands Reference
+## 9. CLI Commands Reference
 
 You can access these tools by running `./ai-protocol.sh [command]` in your project root:
 
@@ -166,6 +185,7 @@ You can access these tools by running `./ai-protocol.sh [command]` in your proje
 | `handoff` | Generates a context-rich prompt for a new AI session. | When the current AI chat becomes too long. |
 | `dashboard` | Opens the AI Second Brain Terminal Dashboard. | When you want an overview of pending tasks and memories. |
 | `install-hook` | Installs a Git Pre-commit hook to automate safety checks. | Run once after `git init`. |
+| `install-mcp` | Installs the NotebookLM Deep Research Hub integration. | Run once to enable deep document research capabilities. |
 
 ---
 **You are now fully equipped!** 🚀 You are ready to build software alongside AI with maximum efficiency, safety, and architectural discipline.
