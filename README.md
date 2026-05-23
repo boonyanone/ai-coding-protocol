@@ -40,6 +40,16 @@ Instead of forcing the AI inside your IDE to read a 10,000-line API Reference di
 - **Massive Token Savings:** Stop paying expensive token costs for scanning the same massive reference documents in every new chat session.
 - **Context Preservation:** Your IDE chat remains lightning fast and focused, preventing AI amnesia.
 - **Enhanced Accuracy:** NotebookLM is purpose-built by Google for large-scale document RAG (Retrieval-Augmented Generation), providing much more accurate answers than raw IDE context injection.
+- **Multi-Account / Project-Local Vault:** The NotebookLM MCP server is automatically patched to store your authentication credentials *locally* inside your project folder (`.ai/mcp/auth/auth.json`), rather than globally. This means you can use **different Google accounts for different projects** without them conflicting!
+
+---
+
+## 🛡️ Enterprise-Grade Security & Safety
+
+Running automated AI agents directly on your machine requires strict guardrails. This protocol is hardened against common and advanced AI execution vulnerabilities:
+- **Cryptographically Secure Atomic Writes:** Temp files are generated with `crypto.randomBytes(16)` and written with strict OS-level exclusive locks (`wx` and `COPYFILE_EXCL`). This completely neutralizes Race Conditions and prevents malicious agents or scripts from performing Symlink Hijacking attacks.
+- **Network & DoS Resilience:** Downloads enforce strict 5-second connection timeouts, preventing the AI from hanging the system indefinitely via malicious or stuck server connections.
+- **Deep Git Security Audits:** Pre-commit hooks run recursive checks (`**/.env*`) down to the deepest directory levels, ensuring no secrets are ever committed, even if manually staged.
 
 ---
 
