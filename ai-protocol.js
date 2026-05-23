@@ -4,14 +4,13 @@ const fs = require('fs');
 const path = require('path');
 const { execSync, execFileSync } = require('child_process');
 const https = require('https');
-const crypto = require('crypto');
 
 // ============================================================================
 // AI DEVELOPER INSTRUCTION: 
 // If you are an AI Agent adding a new feature or fixing a bug in this file,
 // you MUST increment the PROTOCOL_VERSION below AND the version in package.json.
 // ============================================================================
-const PROTOCOL_VERSION = "1.1.11";
+const PROTOCOL_VERSION = "1.1.12";
 
 const args = process.argv.slice(2);
 const command = args[0];
@@ -51,7 +50,11 @@ function log(color, msg) {
 
 function ensureDir(dir) {
   if (fs.existsSync(dir)) {
-    if (!fs.statSync(dir).isDirectory()) {
+    const stats = fs.lstatSync(dir);
+    if (stats.isSymbolicLink()) {
+      throw new Error(`Security Error: Path is a symbolic link, which is not allowed for directories: ${dir}`);
+    }
+    if (!stats.isDirectory()) {
       throw new Error(`Path exists but is not a directory: ${dir}`);
     }
   } else {
@@ -78,9 +81,9 @@ function copyFolderSync(from, to) {
 function atomicWriteSync(filePath, content, options = {}) {
   const randomSuffix = crypto.randomBytes(16).toString('hex');
   const tempPath = `${filePath}.tmp.${randomSuffix}`;
+  const safeOptions = { ...options, flag: 'wx' };
   try {
-    const writeOptions = { ...options, flag: 'wx' };
-    fs.writeFileSync(tempPath, content, writeOptions);
+    fs.writeFileSync(tempPath, content, safeOptions);
     try {
       fs.renameSync(tempPath, filePath);
     } catch (renameErr) {
@@ -95,9 +98,7 @@ function atomicWriteSync(filePath, content, options = {}) {
       }
     }
   } catch (err) {
-    if (fs.existsSync(tempPath)) {
-      try { fs.unlinkSync(tempPath); } catch (_) {}
-    }
+    if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
     throw err;
   }
 }
@@ -121,9 +122,7 @@ function atomicCopySync(srcPath, destPath) {
       }
     }
   } catch (err) {
-    if (fs.existsSync(tempPath)) {
-      try { fs.unlinkSync(tempPath); } catch (_) {}
-    }
+    if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
     throw err;
   }
 }
@@ -146,12 +145,10 @@ function downloadFile(url, dest, validateSyntax = false) {
             try {
               execFileSync('node', ['-c', tempDest], { stdio: 'ignore' });
             } catch (err) {
-              if (fs.existsSync(tempDest)) {
-                try { fs.unlinkSync(tempDest); } catch (_) {}
-              }
+              fs.unlinkSync(tempDest);
               return reject(new Error(`Syntax error in downloaded file ${url}. Aborting update to prevent corruption.`));
             }
-            if (fs.existsSync(tempDest)) fs.unlinkSync(tempDest);
+            fs.unlinkSync(tempDest);
           }
           atomicWriteSync(dest, data);
           resolve();
@@ -161,10 +158,6 @@ function downloadFile(url, dest, validateSyntax = false) {
       });
     });
     req.on('error', reject);
-    req.setTimeout(5000, () => {
-      req.destroy();
-      reject(new Error(`Timeout: Server did not respond in time for ${url}`));
-    });
   });
 }
 
@@ -201,21 +194,21 @@ async function update() {
 
   try {
     for (const file of filesToUpdate) {
-      log('blue', `⬇ Downloading ${path.basename(file.dest)}...`);
+      log('blue', `⬇️ Downloading ${path.basename(file.dest)}...`);
       // Only validate syntax for ai-protocol.js
       const requiresValidation = file.dest.endsWith('ai-protocol.js');
       await downloadFile(file.url, file.dest, requiresValidation);
     }
     
-    // Ensure the shell script is executable
+    // Ensure the shell script is executable safely
     const shPath = path.join(projectRoot, 'ai-protocol.sh');
-    if (fs.existsSync(shPath)) {
+    if (fs.existsSync(shPath) && !fs.lstatSync(shPath).isSymbolicLink()) {
       fs.chmodSync(shPath, 0o755);
     }
     
     // Ensure the JS script remains executable for global CLI usage
     const jsPath = path.join(projectRoot, 'ai-protocol.js');
-    if (fs.existsSync(jsPath)) {
+    if (fs.existsSync(jsPath) && !fs.lstatSync(jsPath).isSymbolicLink()) {
       fs.chmodSync(jsPath, 0o755);
     }
     
@@ -297,7 +290,9 @@ function init() {
         if (fs.existsSync(shSrc) && fs.existsSync(jsSrc)) {
           fs.copyFileSync(shSrc, path.join(targetDir, 'ai-protocol.sh'));
           fs.copyFileSync(jsSrc, path.join(targetDir, 'ai-protocol.js'));
-          fs.chmodSync(path.join(targetDir, 'ai-protocol.sh'), 0o755);
+          if (!fs.lstatSync(path.join(targetDir, 'ai-protocol.sh')).isSymbolicLink()) {
+            fs.chmodSync(path.join(targetDir, 'ai-protocol.sh'), 0o755);
+          }
         }
         
         log('green', '✅ Created multi-IDE config files (.cursorrules, .windsurfrules, .clinerules, .clauderules, .claudecoderc, SKILL.md, copilot-instructions.md).');
@@ -358,7 +353,7 @@ async function check() {
   const gitPath = path.join(projectRoot, '.git');
   if (fs.existsSync(gitPath)) {
     try {
-      const trackedEnv = execSync('git ls-files ".env*" "**/.env*"', { cwd: projectRoot, encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] }).trim();
+      const trackedEnv = execSync('git ls-files ".env*"', { cwd: projectRoot, encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] }).trim();
       if (trackedEnv) {
         const envFiles = trackedEnv.split(/\r?\n/).filter(f => !f.endsWith('.example') && !f.endsWith('.sample') && !f.endsWith('.template'));
         if (envFiles.length > 0) {
@@ -435,12 +430,7 @@ function prune() {
   const archive = entries.slice(15);
   
   ensureDir(path.join(projectRoot, '.ai/docs'));
-  if (fs.existsSync(archPath)) {
-    if (fs.lstatSync(archPath).isSymbolicLink()) {
-      log('red', `❌ Security Error: ${archPath} is a symbolic link. Cannot safely append.`);
-      return;
-    }
-  } else {
+  if (!fs.existsSync(archPath)) {
     atomicWriteSync(archPath, '# 🗄️ Reflections Archive\n\n');
   }
   
@@ -489,6 +479,10 @@ function installHook() {
   const hookLine = './ai-protocol.sh check';
   
   if (fs.existsSync(hookPath)) {
+    if (fs.lstatSync(hookPath).isSymbolicLink()) {
+      log('red', '❌ Error: pre-commit hook is a symbolic link. Cannot modify safely.');
+      return;
+    }
     const currentContent = fs.readFileSync(hookPath, 'utf8');
     if (currentContent.includes('ai-protocol.sh check') || currentContent.includes('ai-protocol check')) {
       log('green', '✅ Pre-commit hook already contains AI Protocol check. Skipping.');
@@ -687,40 +681,22 @@ async function installMcp() {
     }
 
     if (fs.existsSync(mcpDir)) {
-      log('yellow', `⚠️ MCP directory already exists. Validating repository origin...`);
-      
-      let isValidRepo = false;
-      try {
-        const originUrl = execSync('git remote get-url origin', { cwd: mcpDir, encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] }).trim();
-        if (originUrl.includes('jackc1111/antigravity-notebooklm-mcp.git')) {
-          isValidRepo = true;
-        }
-      } catch (e) {
-        // Not a git repo or no origin set
-      }
-
-      if (!isValidRepo) {
-        log('red', `❌ Security Warning: The existing directory ${mcpDir} is not a valid NotebookLM MCP Git repository.`);
-        log('red', `   Please delete or rename the folder and run installation again to prevent loading malicious files.`);
-        return;
-      }
-
-      log('reset', 'Pulling latest updates...');
+      log('yellow', `⚠️ MCP directory already exists. Pulling latest updates...`);
       // Reset local changes first, otherwise git pull will abort due to our patches!
       execFileSync('git', ['reset', '--hard'], { cwd: mcpDir, stdio: 'ignore' });
       execFileSync('git', ['pull'], { cwd: mcpDir, stdio: 'inherit' });
     } else {
-      fs.mkdirSync(path.join(projectRoot, '.ai', 'mcp'), { recursive: true });
+      ensureDir(path.join(projectRoot, '.ai', 'mcp'));
       log('reset', 'Cloning repository...');
       execFileSync('git', ['clone', 'https://github.com/jackc1111/antigravity-notebooklm-mcp.git', mcpDir], { stdio: 'inherit' });
     }
     
     // Pre-create the credentials directory as a secure OS-level vault (Defense-in-Depth)
     const authDir = path.join(projectRoot, '.ai', 'mcp', 'auth');
-    if (!fs.existsSync(authDir)) {
-      fs.mkdirSync(authDir, { recursive: true });
+    ensureDir(authDir);
+    if (!fs.lstatSync(authDir).isSymbolicLink()) {
+      fs.chmodSync(authDir, 0o700);
     }
-    fs.chmodSync(authDir, 0o700);
     
     log('reset', 'Patching MCP to use project-local authentication...');
     try {
@@ -729,6 +705,7 @@ async function installMcp() {
         const files = fs.readdirSync(srcDir).filter(f => f.endsWith('.ts'));
         for (const file of files) {
           const filePath = path.join(srcDir, file);
+          if (fs.lstatSync(filePath).isSymbolicLink()) continue;
           let content = fs.readFileSync(filePath, 'utf8');
           // Add fileURLToPath import for ESM __dirname equivalent if not present
           if (!content.includes('fileURLToPath')) {
@@ -740,7 +717,8 @@ async function installMcp() {
           content = content.replace(/fs\.writeFileSync\(\s*authPath\s*,\s*JSON\.stringify\(\s*authData\s*,\s*null\s*,\s*2\s*\)\s*\)/g, "fs.writeFileSync(authPath, JSON.stringify(authData, null, 2), { mode: 0o600 })");
           // 3. Fix confusing UI logs to show the accurate project-local path
           content = content.replace(/~\/\.notebooklm-mcp\/auth\.json/g, ".ai/mcp/auth/auth.json");
-          fs.writeFileSync(filePath, content, 'utf8');
+          
+          atomicWriteSync(filePath, content);
         }
       }
     } catch (err) {
@@ -784,7 +762,7 @@ async function installMcp() {
       if (!mcpConfig[conf.key]) mcpConfig[conf.key] = {};
       mcpConfig[conf.key]["notebooklm"] = mcpServerConfig;
       
-      fs.writeFileSync(configFile, JSON.stringify(mcpConfig, null, 2), 'utf8');
+      atomicWriteSync(configFile, JSON.stringify(mcpConfig, null, 2));
       log('green', `✅ Added MCP configuration to ${configFile}`);
     }
 
@@ -801,7 +779,7 @@ async function installMcp() {
         }
       }
       if (modified) {
-        fs.writeFileSync(gitignorePath, gitignore, 'utf8');
+        atomicWriteSync(gitignorePath, gitignore);
         log('green', `✅ Added IDE config paths to .gitignore`);
       }
     }
