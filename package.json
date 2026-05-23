@@ -1,6 +1,6 @@
 {
   "name": "ai-coding-protocol",
-  "version": "1.1.10",
+  "version": "1.1.11",
   "description": "AI Coding Protocol Orchestrator",
   "main": "ai-protocol.js",
   "bin": {
