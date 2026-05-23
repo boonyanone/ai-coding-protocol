@@ -667,7 +667,7 @@ async function installMcp() {
     }
 
     if (fs.existsSync(mcpDir)) {
-      log('yellow', `⚠️ MCP directory already exists. Pulling latest updates...`);
+      log('yellow', `⚠��� MCP directory already exists. Pulling latest updates...`);
       // Reset local changes first, otherwise git pull will abort due to our patches!
       execFileSync('git', ['reset', '--hard'], { cwd: mcpDir, stdio: 'ignore' });
       execFileSync('git', ['pull'], { cwd: mcpDir, stdio: 'inherit' });
