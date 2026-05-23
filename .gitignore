@@ -30,3 +30,8 @@ npm-debug.log*
 .ai/docs/state_history/
 .ai/docs/reflections_archive.md
 .ai/HANDOFF.md
+
+.cursor/
+.windsurf/
+.vscode/cline_mcp_settings.json
+.ai/mcp/

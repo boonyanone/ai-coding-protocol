@@ -156,7 +156,7 @@ We have integrated the **NotebookLM MCP** directly into the protocol to act as y
 
 **📝 How to Install and Use:**
 1. **Install (One-time):** Run `./ai-protocol.sh install-mcp` in your project terminal.
-2. **Authenticate:** Run `node .ai/mcp/notebooklm/build/browser-auth.js` as prompted to securely link your Google account.
+2. **Authenticate:** Run `./ai-protocol.sh auth-mcp` in your terminal and follow the prompts to securely link your Google account.
 3. **Usage:** In your Cursor/Windsurf chat, simply tell the AI:
    > *"Please load the document from this link [insert link] into a new NotebookLM notebook, and then summarize how to use this component for me."*
 
@@ -186,6 +186,7 @@ You can access these tools by running `./ai-protocol.sh [command]` in your proje
 | `dashboard` | Opens the AI Second Brain Terminal Dashboard. | When you want an overview of pending tasks and memories. |
 | `install-hook` | Installs a Git Pre-commit hook to automate safety checks. | Run once after `git init`. |
 | `install-mcp` | Installs the NotebookLM Deep Research Hub integration. | Run once to enable deep document research capabilities. |
+| `auth-mcp` | Launches the browser to authenticate the NotebookLM MCP. | Run when logging in for the first time or when your session expires. |
 
 ---
 **You are now fully equipped!** 🚀 You are ready to build software alongside AI with maximum efficiency, safety, and architectural discipline.

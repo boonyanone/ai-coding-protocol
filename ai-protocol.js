@@ -624,15 +624,7 @@ async function installMcp() {
   log('blue', '🚀 Installing NotebookLM MCP Server...');
   const mcpDir = path.join(projectRoot, '.ai', 'mcp', 'notebooklm');
 
-  if (fs.existsSync(mcpDir)) {
-    log('yellow', `⚠️ MCP directory already exists at ${mcpDir}`);
-    log('reset', 'If you want to reinstall, please delete the folder first.');
-    return;
-  }
-
   try {
-    fs.mkdirSync(path.join(projectRoot, '.ai', 'mcp'), { recursive: true });
-    
     // Check if git is installed
     try {
       execSync('git --version', { stdio: 'ignore' });
@@ -640,9 +632,23 @@ async function installMcp() {
       log('red', '❌ Git is not installed. Please install Git first.');
       return;
     }
-    
-    log('reset', 'Cloning repository...');
-    execSync(`git clone https://github.com/jackc1111/antigravity-notebooklm-mcp.git "${mcpDir}"`, { stdio: 'inherit' });
+
+    // Check if npm is installed
+    try {
+      execSync('npm --version', { stdio: 'ignore' });
+    } catch (e) {
+      log('red', '❌ Node.js/NPM is not installed. Please install Node.js first.');
+      return;
+    }
+
+    if (fs.existsSync(mcpDir)) {
+      log('yellow', `⚠️ MCP directory already exists. Pulling latest updates...`);
+      execSync('git pull', { cwd: mcpDir, stdio: 'inherit' });
+    } else {
+      fs.mkdirSync(path.join(projectRoot, '.ai', 'mcp'), { recursive: true });
+      log('reset', 'Cloning repository...');
+      execSync(`git clone https://github.com/jackc1111/antigravity-notebooklm-mcp.git "${mcpDir}"`, { stdio: 'inherit' });
+    }
     
     log('reset', 'Installing dependencies...');
     execSync('npm install', { cwd: mcpDir, stdio: 'inherit' });
@@ -650,40 +656,81 @@ async function installMcp() {
     log('reset', 'Building MCP server...');
     execSync('npm run build', { cwd: mcpDir, stdio: 'inherit' });
     
-    // Generate IDE configuration (Cursor)
-    const cursorDir = path.join(projectRoot, '.cursor');
-    const cursorMcpFile = path.join(cursorDir, 'mcp.json');
-    fs.mkdirSync(cursorDir, { recursive: true });
-    
-    let mcpConfig = { mcpServers: {} };
-    if (fs.existsSync(cursorMcpFile)) {
-      try {
-        mcpConfig = JSON.parse(fs.readFileSync(cursorMcpFile, 'utf8'));
-      } catch (e) {
-        log('yellow', `Failed to parse existing ${cursorMcpFile}, backing up and creating new one.`);
-        fs.copyFileSync(cursorMcpFile, cursorMcpFile + '.bak');
+    // Generate IDE configurations (Cursor, Windsurf, Cline)
+    const relativeMcpDir = ".ai/mcp/notebooklm";
+    const mcpServerConfig = {
+      command: "node",
+      args: [`${relativeMcpDir}/build/index.js`]
+    };
+
+    const configs = [
+      { dir: '.cursor', file: 'mcp.json', key: 'mcpServers' },
+      { dir: '.windsurf', file: 'mcp.json', key: 'mcpServers' },
+      { dir: '.vscode', file: 'cline_mcp_settings.json', key: 'mcpServers' }
+    ];
+
+    for (const conf of configs) {
+      const configDir = path.join(projectRoot, conf.dir);
+      const configFile = path.join(configDir, conf.file);
+      fs.mkdirSync(configDir, { recursive: true });
+      
+      let mcpConfig = {};
+      if (fs.existsSync(configFile)) {
+        try {
+          mcpConfig = JSON.parse(fs.readFileSync(configFile, 'utf8'));
+        } catch (e) {
+          log('yellow', `Failed to parse existing ${configFile}, backing up.`);
+          fs.copyFileSync(configFile, configFile + '.bak');
+        }
+      }
+      
+      if (!mcpConfig[conf.key]) mcpConfig[conf.key] = {};
+      mcpConfig[conf.key]["notebooklm"] = mcpServerConfig;
+      
+      fs.writeFileSync(configFile, JSON.stringify(mcpConfig, null, 2), 'utf8');
+      log('green', `✅ Added MCP configuration to ${configFile}`);
+    }
+
+    // Update .gitignore to prevent leaking IDE configs and MCP source
+    const gitignorePath = path.join(projectRoot, '.gitignore');
+    if (fs.existsSync(gitignorePath)) {
+      let gitignore = fs.readFileSync(gitignorePath, 'utf8');
+      let modified = false;
+      const ignores = ['.cursor/', '.windsurf/', '.vscode/cline_mcp_settings.json', '.ai/mcp/'];
+      for (const ignore of ignores) {
+        if (!gitignore.includes(ignore)) {
+          gitignore += `\n${ignore}`;
+          modified = true;
+        }
+      }
+      if (modified) {
+        fs.writeFileSync(gitignorePath, gitignore, 'utf8');
+        log('green', `✅ Added IDE config paths to .gitignore`);
       }
     }
-    
-    if (!mcpConfig.mcpServers) mcpConfig.mcpServers = {};
-    
-    mcpConfig.mcpServers["notebooklm"] = {
-      command: "node",
-      args: ["build/index.js"],
-      cwd: mcpDir
-    };
-    
-    fs.writeFileSync(cursorMcpFile, JSON.stringify(mcpConfig, null, 2), 'utf8');
-    log('green', `✅ Added MCP configuration to ${cursorMcpFile}`);
     
     log('green', '🎉 NotebookLM MCP Server installed successfully!');
     log('blue', '\n[ACTION REQUIRED] Authentication');
     log('reset', 'To use the MCP, you must authenticate your Google account.');
     log('reset', `Run the following command in your terminal:`);
-    log('cyan', `node ${path.join('.ai', 'mcp', 'notebooklm', 'build', 'browser-auth.js')}`);
+    log('cyan', `./ai-protocol.sh auth-mcp`);
     
   } catch (error) {
     log('red', `❌ Installation failed: ${error.message}`);
+  }
+}
+
+async function authMcp() {
+  const authScript = path.join(projectRoot, '.ai', 'mcp', 'notebooklm', 'build', 'browser-auth.js');
+  if (!fs.existsSync(authScript)) {
+    log('red', `❌ MCP Server is not installed. Please run './ai-protocol.sh install-mcp' first.`);
+    return;
+  }
+  log('blue', '🚀 Launching Browser for Authentication...');
+  try {
+    execSync(`node "${authScript}"`, { stdio: 'inherit' });
+  } catch (error) {
+    log('red', `❌ Authentication process failed or was interrupted.`);
   }
 }
 
@@ -699,6 +746,7 @@ function help() {
   log('reset', `  dashboard    Open the AI Second Brain Terminal Dashboard`);
   log('reset', `  install-hook Install git pre-commit hook`);
   log('reset', `  install-mcp  Install NotebookLM MCP Server for Deep Research`);
+  log('reset', `  auth-mcp     Launch browser to authenticate NotebookLM MCP`);
   log('reset', `  update       Update AI Protocol to the latest version`);
 }
 
@@ -712,6 +760,7 @@ async function run() {
     case 'dashboard': await dashboard(); break;
     case 'install-hook': await installHook(); break;
     case 'install-mcp': await installMcp(); break;
+    case 'auth-mcp': await authMcp(); break;
     case 'update': await update(); break;
     default: help(); break;
   }
