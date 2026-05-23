@@ -24,6 +24,7 @@ It provides:
 - ✅ **One-Click Handoffs:** A CLI tool to easily pack up the context of an old chat and hand it over to a fresh, clean session.
 - ✅ **Safety Guardrails:** Pre-commit hooks to prevent accidental `.env` leaks and keep your memory files optimized.
 - ✅ **Auto-Updating CLI:** A built-in script (`ai-protocol.sh`) that manages your workflow and keeps the protocol up to date.
+- ✅ **Deep Research Hub (New!):** Automatically installs NotebookLM MCP to allow agents to upload and query massive documents without context bloat (`./ai-protocol.sh install-mcp`).
 
 ---
 
