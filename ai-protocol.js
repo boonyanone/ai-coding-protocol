@@ -5,6 +5,11 @@ const path = require('path');
 const { execSync, execFileSync } = require('child_process');
 const https = require('https');
 
+// ============================================================================
+// AI DEVELOPER INSTRUCTION: 
+// If you are an AI Agent adding a new feature or fixing a bug in this file,
+// you MUST increment the PROTOCOL_VERSION below AND the version in package.json.
+// ============================================================================
 const PROTOCOL_VERSION = "1.1.0";
 
 const args = process.argv.slice(2);
