@@ -127,7 +127,7 @@ function downloadFile(url, dest, validateSyntax = false) {
         try {
           if (validateSyntax) {
             // Write to a temporary file to validate syntax
-            const tempDest = `${dest}.validate.${Date.now()}`;
+            const tempDest = `${dest}.${Date.now()}.tmp.js`;
             fs.writeFileSync(tempDest, data);
             try {
               execFileSync('node', ['-c', tempDest], { stdio: 'ignore' });
