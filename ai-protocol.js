@@ -4,13 +4,14 @@ const fs = require('fs');
 const path = require('path');
 const { execSync, execFileSync } = require('child_process');
 const https = require('https');
+const crypto = require('crypto');
 
 // ============================================================================
 // AI DEVELOPER INSTRUCTION: 
 // If you are an AI Agent adding a new feature or fixing a bug in this file,
 // you MUST increment the PROTOCOL_VERSION below AND the version in package.json.
 // ============================================================================
-const PROTOCOL_VERSION = "1.1.8";
+const PROTOCOL_VERSION = "1.1.9";
 
 const args = process.argv.slice(2);
 const command = args[0];
@@ -75,9 +76,11 @@ function copyFolderSync(from, to) {
 }
 
 function atomicWriteSync(filePath, content, options = {}) {
-  const tempPath = `${filePath}.tmp.${Date.now()}`;
+  const randomSuffix = crypto.randomBytes(16).toString('hex');
+  const tempPath = `${filePath}.tmp.${randomSuffix}`;
   try {
-    fs.writeFileSync(tempPath, content, options);
+    const writeOptions = { ...options, flag: 'wx' };
+    fs.writeFileSync(tempPath, content, writeOptions);
     try {
       fs.renameSync(tempPath, filePath);
     } catch (renameErr) {
@@ -92,15 +95,18 @@ function atomicWriteSync(filePath, content, options = {}) {
       }
     }
   } catch (err) {
-    if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
+    if (fs.existsSync(tempPath)) {
+      try { fs.unlinkSync(tempPath); } catch (_) {}
+    }
     throw err;
   }
 }
 
 function atomicCopySync(srcPath, destPath) {
-  const tempPath = `${destPath}.tmp.${Date.now()}`;
+  const randomSuffix = crypto.randomBytes(16).toString('hex');
+  const tempPath = `${destPath}.tmp.${randomSuffix}`;
   try {
-    fs.copyFileSync(srcPath, tempPath);
+    fs.copyFileSync(srcPath, tempPath, fs.constants.COPYFILE_EXCL);
     try {
       fs.renameSync(tempPath, destPath);
     } catch (renameErr) {
@@ -115,7 +121,9 @@ function atomicCopySync(srcPath, destPath) {
       }
     }
   } catch (err) {
-    if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
+    if (fs.existsSync(tempPath)) {
+      try { fs.unlinkSync(tempPath); } catch (_) {}
+    }
     throw err;
   }
 }
@@ -131,16 +139,19 @@ function downloadFile(url, dest, validateSyntax = false) {
       res.on('end', () => {
         try {
           if (validateSyntax) {
-            // Write to a temporary file to validate syntax
-            const tempDest = `${dest}.${Date.now()}.tmp.js`;
-            fs.writeFileSync(tempDest, data);
+            // Write to a temporary file to validate syntax safely
+            const randomSuffix = crypto.randomBytes(16).toString('hex');
+            const tempDest = `${dest}.${randomSuffix}.tmp.js`;
+            fs.writeFileSync(tempDest, data, { flag: 'wx' });
             try {
               execFileSync('node', ['-c', tempDest], { stdio: 'ignore' });
             } catch (err) {
-              fs.unlinkSync(tempDest);
+              if (fs.existsSync(tempDest)) {
+                try { fs.unlinkSync(tempDest); } catch (_) {}
+              }
               return reject(new Error(`Syntax error in downloaded file ${url}. Aborting update to prevent corruption.`));
             }
-            fs.unlinkSync(tempDest);
+            if (fs.existsSync(tempDest)) fs.unlinkSync(tempDest);
           }
           atomicWriteSync(dest, data);
           resolve();
@@ -667,7 +678,25 @@ async function installMcp() {
     }
 
     if (fs.existsSync(mcpDir)) {
-      log('yellow', `⚠��� MCP directory already exists. Pulling latest updates...`);
+      log('yellow', `⚠️ MCP directory already exists. Validating repository origin...`);
+      
+      let isValidRepo = false;
+      try {
+        const originUrl = execSync('git remote get-url origin', { cwd: mcpDir, encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] }).trim();
+        if (originUrl.includes('jackc1111/antigravity-notebooklm-mcp.git')) {
+          isValidRepo = true;
+        }
+      } catch (e) {
+        // Not a git repo or no origin set
+      }
+
+      if (!isValidRepo) {
+        log('red', `❌ Security Warning: The existing directory ${mcpDir} is not a valid NotebookLM MCP Git repository.`);
+        log('red', `   Please delete or rename the folder and run installation again to prevent loading malicious files.`);
+        return;
+      }
+
+      log('reset', 'Pulling latest updates...');
       // Reset local changes first, otherwise git pull will abort due to our patches!
       execFileSync('git', ['reset', '--hard'], { cwd: mcpDir, stdio: 'ignore' });
       execFileSync('git', ['pull'], { cwd: mcpDir, stdio: 'inherit' });
