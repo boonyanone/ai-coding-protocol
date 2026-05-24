@@ -28,19 +28,18 @@ It provides:
 
 ---
 
-## ✨ Killer Feature: Deep Research Hub (NotebookLM)
+## 📚 Deep Research Hub (NotebookLM)
 
-Say goodbye to **"Pasting massive documents into the IDE and breaking the chat context"**! 
-Our framework comes with built-in **NotebookLM MCP** support, installable with a single command (`./ai-protocol.sh install-mcp`).
+Stop pasting massive documents into the IDE and breaking the chat context! 
+This framework includes built-in **NotebookLM MCP** support (`./ai-protocol.sh install-mcp`).
 
-**How does it work?**
-Instead of forcing the AI inside your IDE to read a 10,000-line API Reference directly, the AI will upload that document into your personal Google NotebookLM account. The IDE's AI will then "chat" with NotebookLM to extract only the specific information it needs to write code.
+The AI uploads heavy documents into Google NotebookLM and queries it directly, extracting only what it needs to write code.
 
-**🔥 Key Advantages:**
-- **Massive Token Savings:** Stop paying expensive token costs for scanning the same massive reference documents in every new chat session.
-- **Context Preservation:** Your IDE chat remains lightning fast and focused, preventing AI amnesia.
-- **Enhanced Accuracy:** NotebookLM is purpose-built by Google for large-scale document RAG (Retrieval-Augmented Generation), providing much more accurate answers than raw IDE context injection.
-- **Multi-Account / Project-Local Vault:** The NotebookLM MCP server is automatically patched to store your authentication credentials *locally* inside your project folder (`.ai/mcp/auth/auth.json`), rather than globally. This means you can use **different Google accounts for different projects** without them conflicting!
+**Key Advantages:**
+- **Token Savings:** Stop paying to re-read massive documents.
+- **Context Preservation:** Keeps the IDE chat fast and focused.
+- **High Accuracy:** Uses Google's dedicated RAG engine instead of raw IDE context.
+- **Project-Local Accounts:** The MCP server is patched to store credentials locally (`.ai/mcp/auth/auth.json`), allowing you to use **different Google accounts for different projects** without conflict.
 
 ---
 
