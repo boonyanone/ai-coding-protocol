@@ -1,217 +1,150 @@
-# 🤖 Agentic Workflow Framework
+# Agentic Workflow Framework
 
-กรอบการทำงานที่เข้มงวด (Strict Rules), จัดการความจำไม่ตกหล่น (Memory-Persistent), ควบคุม UI เป็นระบบ และประหยัด Token สำหรับพัฒนาซอฟต์แวร์ร่วมกับ AI Coding Agents (เช่น Cursor, Windsurf, Cline, Antigravity, Claude)
+โครงสร้างสำหรับช่วยจัดระเบียบการทำงานร่วมกับ AI Coding Agents (เช่น Cursor, Windsurf, Cline, Antigravity, Claude) เพื่อจัดการขนาดของ Context, สถานะงาน, และควบคุม UI ให้คงที่
 
 [Read in English](README.md)
 
-ผสมผสานแนวคิดจาก **Superpowers**, **LLM Wiki (Karpathy)**, **Reflexion**, **9arm Protocol** และระบบประหยัด Token เพื่อป้องกัน Context บวม, Hallucination, การทำเกินสั่ง และ UI มั่ว
-
-📖 **[อ่านคู่มือการใช้งานแบบละเอียด (User Manual)](USER_MANUAL.th.md)**
+📖 **[อ่านคู่มือการใช้งานแบบละเอียด](USER_MANUAL.th.md)**
 
 ---
 
-## 🌟 ทำไมต้องใช้ Framework นี้? (ปัญหาที่ช่วยแก้)
+## ปัญหาที่ช่วยแก้
 
-หากคุณใช้งาน AI ช่วยเขียนโค้ดใน IDE เป็นประจำ คุณอาจจะเคยเจอปัญหาเหล่านี้:
-- ⚠️ **แชทยาวเกินไป (Context Bloat):** พอยิ่งคุยยาว AI ยิ่งตอบช้าลง เปลือง Token และเริ่มมั่ว
-- ⚠️ **AI ความจำเสื่อม (Agent Amnesia):** พอต้องขึ้นแชทใหม่ (New Session) AI ก็ลืมกฎของโปรเจกต์ ลืมโครงสร้าง และลืมบั๊กที่เคยแก้ไปแล้ว
-- ⚠️ **ดีไซน์ไม่คงที่ (UI Inconsistency):** AI มักจะสุ่มสีหรือสร้าง UI แบบใหม่ขึ้นมาเองโดยไม่สน Design System เดิมของเรา
+เมื่อใช้ AI ช่วยเขียนโปรแกรมในโปรเจกต์ขนาดใหญ่ มักจะพบปัญหาต่อไปนี้:
+- **Context ยาวเกินไป:** เมื่อแชทยาวขึ้น AI จะตอบช้าลง และใช้ Token เปลืองขึ้น
+- **Context หาย:** เมื่อต้องเริ่มแชทใหม่ AI จะลืมกฎของโปรเจกต์ โครงสร้าง และสิ่งที่เคยทำไปแล้ว
+- **ดีไซน์ไม่สม่ำเสมอ:** AI อาจจะสร้าง UI ที่ไม่ตรงกับรูปแบบของโปรเจกต์
 
-**AI Coding Protocol** เข้ามาช่วยแก้ปัญหาเหล่านี้ โดยทำหน้าที่เป็น **ผู้ช่วยจัดระเบียบ (Governance Framework)** ที่ทำงานร่วมกับ IDE เดิมของคุณ (Cursor, Windsurf, Cline) อย่างราบรื่น
-
-สิ่งที่คุณจะได้จาก Framework นี้:
-- ✅ **ระบบจัดการความจำ (Active Memory):** มีไฟล์ `STATE.md` และ `REFLECTIONS.md` คอยจดจำสถานะงานและบทเรียนข้ามเซสชัน
-- ✅ **ส่งต่องานง่ายดาย (One-Click Handoff):** สคริปต์ช่วยแพ็กสรุปงานจากแชทเก่า ไปเริ่มแชทใหม่ที่สะอาดและลื่นไหลกว่า โดยไม่เสียบริบท
-- ✅ **ระบบป้องกันความปลอดภัย:** มี Git Hook คอยตรวจจับไม่ให้เผลอ Commit ไฟล์ `.env` และช่วยคุมไฟล์ความจำไม่ให้ใหญ่เกินไป
-- ✅ **เครื่องมือดูแลอัตโนมัติ (CLI):** มีสคริปต์ `./ai-protocol.sh` คอยช่วยจัดการงานที่ยุ่งยาก และมีระบบอัปเดตตัวเองให้ทันสมัยอยู่เสมอ
-- ✅ **คลังวิจัยเชิงลึก (Deep Research Hub):** รองรับการติดตั้ง NotebookLM MCP เพื่อให้ AI อัปโหลดและแชทถามข้อมูลจาก Document ขนาดยักษ์ได้โดยไม่ต้องเปลือง Token (ใช้คำสั่ง `./ai-protocol.sh install-mcp`)
+โปรโตคอลนี้มีโครงสร้างมาช่วยจัดการปัญหาเหล่านี้:
+- **บันทึกสถานะ (`STATE.md`):** จดจำงานปัจจุบันและสิ่งที่เรียนรู้ไปแล้ว
+- **จัดการ Session:** มีสคริปต์ช่วยสรุปงานเพื่อส่งต่อไปยังแชทใหม่
+- **Pre-commit Hooks:** ตรวจสอบพื้นฐานเพื่อป้องกันการอัปโหลดไฟล์ `.env`
+- **รองรับ NotebookLM:** มีเครื่องมือช่วยส่งเอกสารขนาดใหญ่ไปให้ NotebookLM อ่านแทน เพื่อประหยัด Token ของ IDE
 
 ---
 
-## 📚 คลังวิจัยเชิงลึก (Deep Research Hub)
+## การเชื่อมต่อ NotebookLM (Deep Research Hub)
 
-บอกลาปัญหาการโยน Document หนาๆ ให้ AI อ่านจน Token หมด หรือทำแชทพัง! 
-Framework นี้มาพร้อม **NotebookLM MCP** ที่ติดตั้งได้ง่ายๆ (`./ai-protocol.sh install-mcp`)
+คุณสามารถใช้ NotebookLM ช่วยอ่านเอกสารคู่มือขนาดใหญ่แทนการวางข้อความลงในแชทของ IDE ได้ โปรเจกต์นี้มีสคริปต์ (`./ai-protocol.sh install-mcp`) สำหรับติดตั้งการเชื่อมต่อ
 
-AI จะอัปโหลดไฟล์ไปเก็บที่ Google NotebookLM และยิงคำถามเพื่อดึงเฉพาะข้อมูลที่จำเป็นกลับมาเขียนโค้ด
-
-**ประโยชน์หลัก:**
-- **ประหยัด Token:** ไม่ต้องเสียค่า Token สแกนเอกสารซ้ำๆ
-- **รักษา Context:** แชทใน IDE จะลื่นไหลเหมือนเดิม ความจำไม่เสื่อม
-- **แม่นยำสูง:** ใช้เอนจิน RAG ของ Google ซึ่งดีกว่าการยัดไฟล์เข้า IDE ตรงๆ
-- **แยก Account ตามโปรเจกต์:** ข้อมูล Login จะถูกเก็บแยกย่อยในแต่ละโฟลเดอร์โปรเจกต์ (`.ai/mcp/auth/auth.json`) ทำให้ **ใช้ Google Account ต่างกันในแต่ละโปรเจกต์ได้แบบไม่ตีกัน**
+**ข้อดี:**
+- ลดการใช้ Token ใน IDE
+- ทำให้แชทใน IDE สั้นและโฟกัสเฉพาะโค้ด
+- ใช้ระบบ RAG ของ Google ในการค้นหาเอกสาร
+- เก็บข้อมูล Login แยกตามโฟลเดอร์โปรเจกต์ (`.ai/mcp/auth/auth.json`) ทำให้ใช้ Google Account ต่างกันในแต่ละโปรเจกต์ได้
 
 ---
 
-## 🛡️ ระบบรักษาความปลอดภัย
+## ระบบรักษาความปลอดภัย
 
-การให้สิทธิ์ AI ทำงานในเครื่องจำเป็นต้องมีขอบเขตที่ชัดเจน โปรโตคอลนี้มีระบบป้องกันพื้นฐานเพื่อความปลอดภัยของโปรเจกต์:
-- **การจัดการไฟล์ที่ปลอดภัย:** ใช้การสุ่มชื่อไฟล์ชั่วคราวและล็อกการเขียนไฟล์ เพื่อป้องกันปัญหาการเขียนไฟล์ทับกันหรือถูกแทรกแซง (Race conditions / Symlink hijacking)
-- **ป้องกันสคริปต์ค้าง:** จำกัดเวลาเชื่อมต่อเน็ตเวิร์คไว้ที่ 5 วินาที (Timeout) เพื่อไม่ให้ระบบค้างหากเซิร์ฟเวอร์ปลายทางมีปัญหา
-- **ตรวจสอบไฟล์ความลับ:** มี Git Hook คอยตรวจจับไฟล์ `.env` ในทุกโฟลเดอร์ย่อย เพื่อป้องกันการเผลออัปโหลดรหัสผ่านขึ้น Git
+โปรโตคอลนี้มีระบบป้องกันพื้นฐานสำหรับการรัน AI ในเครื่อง:
+- **การจัดการไฟล์:** ใช้การสุ่มชื่อไฟล์ชั่วคราวและล็อกการเขียนไฟล์ เพื่อป้องกันปัญหาการเขียนไฟล์ทับกัน (Symlink hijacking protection)
+- **จำกัดเวลาโหลด:** ตั้งเวลา Timeout 5 วินาทีสำหรับการดาวน์โหลด เพื่อไม่ให้สคริปต์ค้าง
+- **ตรวจสอบไฟล์ความลับ:** มี Git Hook คอยตรวจสอบไฟล์ `.env` เพื่อป้องกันการเผลออัปโหลดรหัสผ่าน
 
 ---
 
-## 📁 1. โครงสร้างโฟลเดอร์หน่วยความจำ (.ai/ Directory)
+## 1. โครงสร้างโฟลเดอร์ (.ai/)
 
-แยกความจำเป็น **RAM** (สั้น กระชับ อ่านทุกเซสชัน) กับ **Hard Drive** (อ่านเฉพาะเมื่อจำเป็น):
+Framework จะแยกการจดจำออกเป็นส่วนต่างๆ ดังนี้:
 
 ```text
 / (Root Project)
 ├── .ai/
-│   ├── STATE.md                    # [RAM] งานปัจจุบัน + สเต็ปถัดไป (ห้ามเกิน 20 บรรทัด)
-│   ├── REFLECTIONS.md              # [Reflexion] บทเรียนความผิดพลาด (เก็บล่าสุดไม่เกิน 15 รายการ)
-│   ├── DECISIONS.md                # [ADR] บันทึกการตัดสินใจเชิงสถาปัตยกรรม (เช่น เลือกใช้ DB อะไร)
-│   ├── templates/                  # เทมเพลตเปล่าสำหรับขึ้นโปรเจกต์ใหม่
-│   │   ├── STATE.template.md
-│   │   ├── REFLECTIONS.template.md
-│   │   ├── DECISIONS.template.md
-│   │   └── ui/                     # เทมเพลต Design System ให้เลือกสลับได้
-│   │       ├── futuristic.md       # Space-Dark + Glassmorphism (Default)
-│   │       ├── minimal.md          # เรียบหรู ขาว-ดำ (สไตล์ shadcn/ui)
-│   │       ├── vibrant.md          # สีสดใส กระจกใส (สไตล์ HeroUI)
-│   │       └── data_heavy.md       # หน้า Dashboard (สไตล์ Tremor)
-│   ├── prompts/                    # [Shortcuts] โฟลเดอร์รวม Prompt ลัดสำหรับก๊อปวาง
-│   │   ├── 01-session-start.md     # เริ่มเซสชันใหม่
-│   │   ├── 02-session-end.md       # จบเซสชัน / ส่งงาน
-│   │   ├── 03-bug-hunting.md       # โหมดล่าบั๊ก
-│   │   └── 04-code-review.md       # สั่ง AI รีวิวโค้ดก่อนส่ง
-│   └── docs/                       # [Hard Drive] ความรู้เชิงระบบ (อ่าน On-demand เท่านั้น)
-│       ├── api_contracts/          # [API] โครงสร้าง API ป้องกัน AI มั่วข้อมูล
-│       ├── architecture.md         # สถาปัตยกรรม เทคโนโลยี โครงสร้างโฟลเดอร์
-│       ├── ui_guidelines.md        # มาตรฐาน Design System (สี, Font, Component, Layout)
-│       ├── database.md             # Schema และกฎการจัดการฐานข้อมูล
-│       └── security_policy.md      # นโยบายความปลอดภัย, Env, Secrets
-├── .gitignore                       # ป้องกัน .env, node_modules, etc. หลุดขึ้น Git
-├── ai-protocol.sh                   # เครื่องมือ CLI สำหรับรันสคริปต์อัตโนมัติ
-├── ai-protocol.js                   # สคริปต์ Node.js ระบบเบื้องหลัง
-├── .cursorrules / SKILL.md          # ไฟล์คำสั่งหลักที่บังคับ AI ปฏิบัติตามกฎ 4 Pillars
-└── (Source Code...)
+│   ├── STATE.md                    # งานปัจจุบัน
+│   ├── REFLECTIONS.md              # บทเรียนและข้อผิดพลาด
+│   ├── DECISIONS.md                # บันทึกการตัดสินใจ
+│   ├── templates/                  # ไฟล์ต้นแบบ
+│   ├── prompts/                    # ตัวอย่าง Prompt สำหรับใช้งาน
+│   └── docs/                       # เอกสารคู่มือของโปรเจกต์
+│       ├── api_contracts/          
+│       ├── architecture.md         
+│       ├── ui_guidelines.md        
+│       ├── database.md             
+│       └── security_policy.md      
+├── .gitignore                       
+├── ai-protocol.sh                   # สคริปต์ช่วยเหลือ
+├── ai-protocol.js                   # สคริปต์ Node.js
+└── .cursorrules / SKILL.md          # ไฟล์คำสั่งหลักสำหรับ AI
 ```
 
 ---
 
-## 📜 2. กฎเหล็ก 4 Pillars สำหรับควบคุม AI
+## 2. แนวทางการทำงาน (Core Guidelines)
 
-เมื่อ AI ทำงานใน Repository นี้ **ต้องปฏิบัติตาม 4 เสาหลักอย่างเคร่งครัด:**
+เมื่อ AI ทำงานใน Repository นี้ ควรปฏิบัติตามแนวทางเหล่านี้:
 
-### 🏛️ Pillar 1: Strict Execution & Safety
-1. **Progressive Complexity:** ปรับระดับการทำงานตามความซับซ้อน:
-   - *งานเล็ก (Minor):* ลงมือทำได้เลย ไม่ต้องวางแผน
-   - *งานกลาง (Standard):* วางแผน + แก้ไขทีละ 2 ไฟล์ (Micro-Stepping)
-   - *งานใหญ่ (Major):* วางแผน + สร้างบันทึกตัดสินใจใน `DECISIONS.md` + เขียน Test ก่อน
-2. **API Contract-First:** ห้ามให้ AI "เดา" หรือ "จินตนาการ" โครงสร้าง API เองเด็ดขาด! ก่อนเขียน API Call จะต้องสร้าง/อ่านไฟล์ Schema ใน `.ai/docs/api_contracts/` หรือรัน `curl` เพื่อเอาผลลัพธ์จริงมากางก่อน
-3. **AI-TDD (Test-Driven):** สำหรับ Business Logic หลัก (ระบบคำนวณ, ตรวจสอบสิทธิ์) บังคับให้ AI เขียนสคริปต์ทดสอบ (Automated test) ควบคู่ไปด้วยเสมอ
-4. **No Vibe Coding:** ห้ามเขียนโค้ดโดยไม่มีแผน ต้องสรุปสิ่งที่เข้าใจและลิสต์ไฟล์ที่จะแตะพร้อมผลลัพธ์ที่คาดหวัง
-5. **Instruction Checksum:** ทุกครั้งที่ผู้ใช้สั่งงาน AI ต้องทวนคำสั่งย่อๆ
-6. **Architectural Fork Rule:** ห้ามสุ่มเลือกทางเลือกออกแบบเอง เสนอ 2 ทางเลือกให้ผู้ใช้พิจารณาก่อน
-7. **Scope Lock & Micro-Stepping:** ห้ามแตะไฟล์ที่ไม่เกี่ยว, แก้สูงสุด 2 ไฟล์ต่อรอบ
-8. **Error Retry Limit (Max 3):** ถ้า Error เกิน 3 รอบ ห้ามฝืนแก้ ให้หยุดหาสาเหตุ
-9. **Rapid Rollback Protocol:** พังเกินเยียวยา เสนอ `git restore .` ทันที
-10. **Security Protocol:** ห้าม Hardcode Secret ต้องใช้ `.env` เสมอ และห้ามลืม `.gitignore`
+### การทำงานและความปลอดภัย
+- **ปรับตามความเหมาะสม:** ทำงานตามสเกลความซับซ้อนของงาน
+- **อิง API เป็นหลัก:** ตรวจสอบโครงสร้าง API ก่อนเขียนโค้ดเสมอ
+- **Test-Driven:** เขียนสคริปต์ทดสอบสำหรับระบบที่ซับซ้อน
+- **วางแผนก่อน:** สรุปเป้าหมายก่อนเริ่มเขียนโค้ด
+- **ความปลอดภัย:** ไม่ฮาร์ดโค้ดรหัสผ่าน ใช้ไฟล์ `.env` เสมอ
 
-### 🧠 Pillar 2: Memory & Reflexion (ความจำและการแก้ไขตัวเอง)
-1. **Session Startup Protocol:** อ่าน `STATE.md` และ `REFLECTIONS.md` เป็นอันดับแรก
-2. **ADR (Architecture Decision Records):** บันทึกการตัดสินใจที่สำคัญๆ (เช่น เลือก Framework, Library) ลงใน `DECISIONS.md`
-3. **Reflections Pruning Rule:** เก็บความจำล่าสุดไว้ใน `REFLECTIONS.md` ไม่เกิน 15 อัน รายการเก่าสุดให้ย้ายเข้า `reflections_archive.md` (ใช้ `ai-protocol.sh prune` ช่วยได้)
-4. **Context Window Alert:** ถ้ายาวไป ให้ขอขึ้นแชทใหม่
+### การจัดการความจำ
+- **ตอนเริ่มต้น:** ให้อ่านไฟล์ `.ai/STATE.md` และ `.ai/REFLECTIONS.md` ก่อน
+- **การตัดสินใจ:** บันทึกการเปลี่ยนแปลงสถาปัตยกรรมลงใน `.ai/DECISIONS.md`
+- **จำกัดความยาวแชท:** แนะนำให้เริ่มแชทใหม่หาก Context เริ่มยาวเกินไป
 
-### 🎨 Pillar 3: Premium UX/UI & Design System (ระบบควบคุมดีไซน์)
-1. **Shadcn/UI & Tailwind as SSOT:** ห้ามเขียน CSS เปล่า ใช้ shadcn/ui เป็นหลัก
-2. **Design Tokens First:** อ่าน `ui_guidelines.md` ก่อน ห้ามเดาสี
-3. **Layout Uniformity:** ใช้ Layout Wrapper ตัวเดิม ไม่ฉีกกรอบ
+### การคุมหน้าตา UI
+- **ยึดตามคู่มือ:** อิงการออกแบบจากไฟล์ `.ai/docs/ui_guidelines.md`
 
-### ⚡ Pillar 4: Token-Saving & Efficiency (โปรโตคอลประหยัด Token)
-1. **Clean Session Protocol:** แนะนำผู้ใช้ให้ **เริ่มแชทใหม่** บ่อยๆ เพื่อไม่ให้ Token พุ่ง โดยสามารถก๊อป Prompt จาก `.ai/prompts/` มาใช้เปิด/ปิดเซสชันได้ง่ายๆ
-2. **Diff-Only Output:** ส่งแค่ส่วนที่เปลี่ยน ไม่พ่นโค้ดทั้งไฟล์
+### ประสิทธิภาพ
+- **แสดงผลเฉพาะที่เปลี่ยน:** พยายามแสดงเฉพาะโค้ดที่แก้ไข ไม่พ่นโค้ดมาทั้งไฟล์
 
 ---
 
-## 🎨 3. การเปลี่ยนธีม Design System (UI Themes)
+## 3. การเปลี่ยนธีม (UI Themes)
 
-ค่าเริ่มต้น (Default) ของ Framework นี้จะใช้ธีม **Space-Dark Glassmorphism** แต่เรามี 4 สไตล์มาตรฐานระดับพรีเมียมให้เลือกใช้
-
-หากต้องการเปลี่ยนสไตล์ สามารถก๊อปปี้ไฟล์เทมเพลตจาก `.ai/templates/ui/` ไปทับ `.ai/docs/ui_guidelines.md` ได้เลย:
+ในโฟลเดอร์ `.ai/templates/ui/` จะมีคู่มือ UI มาตรฐานหลายแบบ สามารถคัดลอกมาทับ `.ai/docs/ui_guidelines.md` เพื่อใช้งานได้:
 
 ```bash
-# แบบที่ 1: Minimalist & Clean (สไตล์ shadcn/ui, เรียบหรู ขาว-ดำ)
 cp .ai/templates/ui/minimal.md .ai/docs/ui_guidelines.md
-
-# แบบที่ 2: Modern Vibrant (สไตล์ HeroUI/NextUI, สีสันสดใส, กระจกใส)
-cp .ai/templates/ui/vibrant.md .ai/docs/ui_guidelines.md
-
-# แบบที่ 3: Data-Heavy (สไตล์ Tremor, เหมาะกับหน้า Dashboard, เน้นอ่านข้อมูล)
-cp .ai/templates/ui/data_heavy.md .ai/docs/ui_guidelines.md
-
-# แบบที่ 4: Futuristic Space-Dark (สไตล์ Aceternity, อวกาศล้ำๆ - Default)
-cp .ai/templates/ui/futuristic.md .ai/docs/ui_guidelines.md
 ```
-เมื่อเปลี่ยนไฟล์แล้ว AI จะอ่านและยึดสไตล์ใหม่นี้เป็นหลักในการเขียน CSS/Tailwind ให้คุณทันที!
 
 ---
 
-## 🚀 4. เครื่องมืออัตโนมัติ (`ai-protocol.sh`)
+## 4. สคริปต์ช่วยเหลือ (`ai-protocol.sh`)
 
-เรามีสคริปต์แบบพกพาที่ไม่ต้องการ Library เพิ่มเติม (ใช้แค่ Node.js พื้นฐาน) เพื่อช่วยดูแล Repository ให้ถูกหลักอนามัย:
+มีสคริปต์สำหรับช่วยจัดการโปรเจกต์:
 
 ```bash
-# ติดตั้ง Protocol ในโปรเจกต์ของคุณ (ก๊อปปี้ templates, prompts, docs และสร้างไฟล์กฎสำหรับ AI ทุกค่ายอัตโนมัติ)
+# ติดตั้ง Protocol ในโปรเจกต์
 ./ai-protocol.sh init
 
-# ตรวจสอบความปลอดภัย (.env) และแจ้งเตือนถ้าไฟล์ความจำยาวเกินไป
+# ตรวจสอบความปลอดภัยและขนาดไฟล์
 ./ai-protocol.sh check
 
-# ตัดตอน Reflections เก่าๆ (เกิน 15 รายการ) ไปเก็บถาวรเพื่อประหยัด Token
+# ตัดตอน Reflections เก่าๆ ออก
 ./ai-protocol.sh prune
 
-# แบ็คอัป STATE.md ของเดิมเข้าโฟลเดอร์ประวัติ และสร้าง STATE.md อันใหม่ให้สะอาด
+# แบ็คอัป STATE.md ของเดิม และสร้างไฟล์ใหม่
 ./ai-protocol.sh clean
 
-# สร้าง Handoff Prompt สำหรับส่งต่อบริบทงานไปยังแชทใหม่ (ลด Token, ไม่เสียบริบท)
+# สร้างข้อความสำหรับนำไปเริ่มแชทใหม่
 ./ai-protocol.sh handoff
 
-# เปิดหน้าจอ Dashboard สรุปงานและสถานะทั้งหมดของ AI
+# ดูสรุปสถานะ
 ./ai-protocol.sh dashboard
 
-# ติดตั้ง Git Hook เพื่อรันการตรวจ check ก่อนสั่ง git commit ทุกครั้ง
+# ติดตั้ง Git Hook
 ./ai-protocol.sh install-hook
 
-# อัปเดตตัวระบบ AI Protocol ให้เป็นเวอร์ชันล่าสุดจาก GitHub อัตโนมัติ
+# อัปเดตตัวสคริปต์
 ./ai-protocol.sh update
 ```
 
 ---
 
-## 🛠️ 5. ตารางความเข้ากันได้ (Compatibility Matrix)
-
-ไฟล์ Config ด้านล่างทั้งหมดจะถูกสร้างอัตโนมัติเมื่อรัน `./ai-protocol.sh init`
-
-| Tool | Config File |
-|------|-------------|
-| **Cursor IDE** | `.cursorrules` |
-| **Windsurf IDE** | `.windsurfrules` |
-| **Cline / Roo Cline** | `.clinerules` |
-| **Claude Code / Claude** | `.clauderules` / `.claudecoderc` |
-| **Antigravity** | `SKILL.md` |
-| **GitHub Copilot** | `.github/copilot-instructions.md` |
-| **Aider** | `.aider.conf.yml` + conventions |
-
----
-
-## 📈 6. วิธีเริ่มต้นใช้งาน (Getting Started)
+## 5. วิธีเริ่มต้นใช้งาน
 
 ```bash
-# 1. Clone framework
+# 1. Clone โปรเจกต์
 git clone https://github.com/<your-org>/ai-coding-protocol.git
 
-# 2. เข้าไปที่โฟลเดอร์โปรเจกต์ของคุณ และใช้คำสั่ง init
+# 2. เข้าไปที่โฟลเดอร์โปรเจกต์ของคุณ และรันคำสั่ง init
 cd /path/to/your/project
 /path/to/ai-coding-protocol/ai-protocol.sh init
 
-# 3. เสร็จแล้ว! คำสั่ง init จะทำสิ่งต่อไปนี้ให้อัตโนมัติ:
-#    - สร้างโฟลเดอร์ .ai/ พร้อม templates, prompts, และ docs
-#    - สร้างไฟล์กฎสำหรับ AI ทุกค่าย (Cursor, Windsurf, Cline, Claude, Antigravity, Copilot)
-#    - สร้าง STATE.md, REFLECTIONS.md, และ DECISIONS.md พร้อมใช้งาน
-
-# 4. เริ่มสั่งงาน AI โดยก๊อปปี้ข้อความจาก `.ai/prompts/01-session-start.md`
+# 3. เริ่มใช้งานโดยก๊อปปี้ข้อความจาก `.ai/prompts/01-session-start.md` มาพิมพ์ในแชท AI
 ```
