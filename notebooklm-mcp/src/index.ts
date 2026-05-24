@@ -336,7 +336,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
                         }, {}),
                         csrf_token: csrfToken?.trim() || ''
                     };
-                    fs.writeFileSync(authPath, JSON.stringify(authData, null, 2));
+                    fs.writeFileSync(authPath, JSON.stringify(authData, null, 2), { mode: 0o600 });
                     console.error("Saved new authentication tokens to cache");
                 } catch (e) {
                     console.error("Failed to save auth cache:", e);

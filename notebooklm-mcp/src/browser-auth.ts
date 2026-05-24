@@ -325,7 +325,7 @@ export async function browserLogin(): Promise<AuthTokens> {
         fs.mkdirSync(authDir, { recursive: true });
     }
 
-    fs.writeFileSync(authPath, JSON.stringify(authData, null, 2));
+    fs.writeFileSync(authPath, JSON.stringify(authData, null, 2), { mode: 0o600 });
 
     console.log(`📁 Saved to: ${authPath}`);
     console.log('\n✅ SUCCESS! You can now close the browser.');

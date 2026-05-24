@@ -48,7 +48,7 @@ async function main() {
             fs.mkdirSync(dir, { recursive: true });
         }
 
-        fs.writeFileSync(authPath, JSON.stringify(authData, null, 2));
+        fs.writeFileSync(authPath, JSON.stringify(authData, null, 2), { mode: 0o600 });
         console.log("\n✅ Successfully saved authentication tokens!");
         console.log("You can now use the NotebookLM MCP server.");
 
