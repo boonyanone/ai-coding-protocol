@@ -16,20 +16,20 @@ This guide explains how to use the protocol to manage AI coding sessions efficie
 
 ---
 
-## 1. Installation & Project Initialization
+## 1. Installation & Project Initialization (Beginner Friendly)
 
-Initialize the protocol in your project to set up the necessary folders and rules.
+This step creates the "memory brain" for the AI inside your project.
 
 **Steps:**
-1. Navigate to your project directory: `cd ~/my-app`
-2. Run the `init` command:
+1. Open your Terminal and navigate to your project directory: `cd ~/my-app`
+2. Run the initialization command:
    ```bash
    /path/to/ai-coding-protocol/ai-protocol.sh init
    ```
-3. Your project will now have:
-   - An `.ai/` directory for memory files.
-   - IDE rules files (`.cursorrules`, etc.).
-   - The `ai-protocol.sh` script.
+3. **What happens behind the scenes?**
+   - It creates a hidden `.ai/` folder, which acts as a notebook for the AI.
+   - It sets up a `STATE.md` file so the AI remembers what task it is currently doing.
+   - It enforces strict IDE rules (like `.cursorrules`) so the AI behaves predictably.
 
 **Optional:** Install the Git Hook to check for `.env` leaks before commits:
 ```bash
@@ -106,16 +106,17 @@ It displays pending tasks, recent reflections, and architectural decisions.
 
 ---
 
-## 7. NotebookLM Integration
+## 7. NotebookLM Integration (The Large File Reader)
 
-Use NotebookLM to handle large documentation files instead of pasting them into your IDE chat.
+Feeding entire documentations into the IDE chat wastes tokens and confuses the AI. Instead, we use Google NotebookLM as an external reader.
 
 **Steps:**
-1. Install the MCP: `./ai-protocol.sh install-mcp`
-2. Authenticate: `./ai-protocol.sh auth-mcp`
-3. Usage: In your IDE chat, ask the AI to "load this URL into NotebookLM and summarize how to use the component."
+1. **Install:** Run `./ai-protocol.sh install-mcp`
+2. **Authenticate:** Run `./ai-protocol.sh auth-mcp`
+   - *💡 Beginner Note:* This script is "magical". If you already have Google Chrome open and are logged into Google, the script will automatically connect to Chrome and extract the login cookies instantly. You likely won't even see a login prompt!
+3. **Usage:** In your IDE chat, type a natural command like: *"Hey AI, please load this documentation URL into NotebookLM and summarize how to use this feature."*
 
-This keeps your IDE chat context small while still allowing the AI to query large datasets.
+This strategy keeps your IDE chat clean and fast while still allowing the AI to research massive datasets.
 
 ---
 
