@@ -665,17 +665,19 @@ async function installMcp() {
   const mcpDir = path.join(projectRoot, '.ai', 'mcp', 'notebooklm');
 
   try {
+    // Check if git is installed
+    try {
+      execSync('git --version', { stdio: 'ignore' });
+    } catch (e) {
+      log('red', '❌ Git is not installed. Please install Git first.');
+      return;
+    }
+
     // Check if npm is installed
     try {
       execSync('npm --version', { stdio: 'ignore' });
     } catch (e) {
       log('red', '❌ Node.js/NPM is not installed. Please install Node.js first.');
-      return;
-    }
-
-    const localMcpSource = path.join(__dirname, 'notebooklm-mcp');
-    if (!fs.existsSync(localMcpSource)) {
-      log('red', '❌ Bundled MCP Server source not found in the protocol installation directory.');
       return;
     }
 
@@ -685,8 +687,13 @@ async function installMcp() {
     }
     
     ensureDir(path.join(projectRoot, '.ai', 'mcp'));
-    log('reset', 'Copying bundled NotebookLM MCP Server...');
-    fs.cpSync(localMcpSource, mcpDir, { recursive: true });
+    const tempMcpDir = path.join(projectRoot, '.ai', 'mcp', 'temp-protocol-repo');
+    if (fs.existsSync(tempMcpDir)) fs.rmSync(tempMcpDir, { recursive: true, force: true });
+
+    log('reset', 'Downloading bundled NotebookLM MCP Server...');
+    execFileSync('git', ['clone', '--depth', '1', 'https://github.com/boonyanone/ai-coding-protocol.git', tempMcpDir], { stdio: 'inherit' });
+    fs.cpSync(path.join(tempMcpDir, 'notebooklm-mcp'), mcpDir, { recursive: true });
+    fs.rmSync(tempMcpDir, { recursive: true, force: true });
     
     // Pre-create the credentials directory as a secure OS-level vault (Defense-in-Depth)
     const authDir = path.join(projectRoot, '.ai', 'mcp', 'auth');
