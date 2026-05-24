@@ -116,7 +116,7 @@ export class NotebookLMClient {
 
     private _parseBatchResponse(responseText: string): any {
         if (typeof responseText === 'string' && responseText.includes('[5]') && responseText.includes('wrb.fr')) {
-            throw new Error("Notebook not found (Error [5]). If this is a publicly shared link, please open the link in your browser first to add it to your NotebookLM workspace before querying via MCP.");
+            throw new Error("Notebook not found (Error [5]). If this is a publicly shared link, please open the link in your browser and click 'Make a copy' to save it to your own NotebookLM workspace before querying via MCP.");
         }
         
         if (responseText.startsWith(")]}'")) {
@@ -519,7 +519,7 @@ export class NotebookLMClient {
         const response = await this.client.post(queryUrl, body);
 
         if (typeof response.data === 'string' && response.data.includes('[5]') && response.data.includes('wrb.fr')) {
-            throw new Error("Notebook not found (Error [5]). If this is a publicly shared link, please open the link in your browser first to add it to your NotebookLM workspace before querying via MCP.");
+            throw new Error("Notebook not found (Error [5]). If this is a publicly shared link, please open the link in your browser and click 'Make a copy' to save it to your own NotebookLM workspace before querying via MCP.");
         }
 
         // Response is streaming, but we return raw for now.
