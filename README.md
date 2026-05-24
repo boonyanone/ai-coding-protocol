@@ -136,15 +136,40 @@ A CLI tool is included to help manage the workspace:
 
 ---
 
-## 5. Getting Started
+## 5. Getting Started & Daily Workflow
+
+### Step 1: Installation
+To add the protocol to an existing project or a new one:
 
 ```bash
-# 1. Clone the protocol
-git clone https://github.com/<your-org>/ai-coding-protocol.git
+# 1. Clone this repository anywhere on your machine
+git clone https://github.com/<your-org>/ai-coding-protocol.git ~/.ai-coding-protocol
 
-# 2. CD into your project and initialize
+# 2. Go to your target project folder
 cd /path/to/your/project
-/path/to/ai-coding-protocol/ai-protocol.sh init
 
-# 3. Start a new AI chat using the text in `.ai/prompts/01-session-start.md`
+# 3. Initialize the protocol in your project
+~/.ai-coding-protocol/ai-protocol.sh init
 ```
+
+The `init` command will generate a `.ai/` folder in your project containing necessary templates, prompts, and config files for your IDE.
+
+### Step 2: Starting a Work Session
+Whenever you open your IDE and start a new chat with the AI, you should provide it with the current project state.
+1. Open `.ai/prompts/01-session-start.md`.
+2. Copy the text and paste it into your AI chat as the first message.
+3. The AI will read `.ai/STATE.md` and know exactly what to do next without you having to re-explain the project.
+
+### Step 3: Ending a Session & Handoff
+When the chat gets too long or you finish a task, you should save the memory and start a fresh chat.
+1. Run `./ai-protocol.sh handoff` in your terminal.
+2. The script will summarize your current progress and generate a prompt.
+3. Clear your IDE chat (start a new session).
+4. Paste the generated prompt into the new chat to continue seamlessly.
+
+### Optional: Setting up NotebookLM
+If your project relies on large documentation (like a massive API reference), you can use NotebookLM instead of pasting it into the IDE:
+1. Run `./ai-protocol.sh install-mcp`.
+2. Follow the instructions to log in to Google.
+3. Create a notebook in Google NotebookLM and upload your documents there.
+4. The AI in your IDE can now query those documents directly.
