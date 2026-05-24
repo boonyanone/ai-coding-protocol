@@ -502,8 +502,7 @@ export class NotebookLMClient {
             bl: (this as any)._currentBl || 'boq_labs-tailwind-frontend_20260121.08_p0',
             hl: 'en',
             _reqid: this.reqIdCounter.toString(),
-            rt: 'c',
-            'source-path': `/notebook/${notebookId}`
+            rt: 'c'
         });
         if (this.sessionId) {
             urlParams.set('f.sid', this.sessionId);
@@ -512,9 +511,9 @@ export class NotebookLMClient {
         const queryUrl = `/_/LabsTailwindUi/data/google.internal.labs.tailwind.orchestration.v1.LabsTailwindOrchestrationService/GenerateFreeFormStreamed?${urlParams.toString()}`;
 
         const conversation_id = conversationId || "session-" + Math.random().toString(36).substring(7);
-        // Structure: [sources_array, query, history, [2, null, [1]], conversation_id]
+        // Structure: [sources_array, query, history, [2, null, [1]], conversation_id, null, null, notebookId, 1]
         // sources_array: [[[sid1]], [[sid2]], ...] or [] for all
-        const params = [[], queryText, null, [2, null, [1]], conversation_id];
+        const params = [[], queryText, null, [2, null, [1]], conversation_id, null, null, notebookId, 1];
 
         const body = await this._buildQueryBody(params);
         const response = await this.client.post(queryUrl, body);
