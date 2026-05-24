@@ -114,9 +114,13 @@ Feeding entire documentations into the IDE chat wastes tokens and confuses the A
 1. **Install:** Run `./ai-protocol.sh install-mcp`
 2. **Authenticate:** Run `./ai-protocol.sh auth-mcp`
    - *💡 Beginner Note:* This script is "magical". If you already have Google Chrome open and are logged into Google, the script will automatically connect to Chrome and extract the login cookies instantly. You likely won't even see a login prompt!
-3. **Usage:** In your IDE chat, type a natural command like: *"Hey AI, please load this documentation URL into NotebookLM and summarize how to use this feature."*
-
-This strategy keeps your IDE chat clean and fast while still allowing the AI to research massive datasets.
+3. **Prepare your Data in NotebookLM:**
+   - Go to the NotebookLM website (notebooklm.google.com).
+   - Create a new "Notebook" (e.g., named *AI Coding Protocol*).
+   - Upload your large documents, code files, or paste long text into that notebook.
+4. **Usage in your IDE:** 
+   - In your IDE chat, instruct the AI using the notebook's name: *"Hey AI, please connect to NotebookLM, read the notebook named 'AI Coding Protocol', and use that knowledge to help me write this feature."*
+   - The AI will query the notebook via MCP and give you context-rich answers without bloating your chat!
 
 ---
 
