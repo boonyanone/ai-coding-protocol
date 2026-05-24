@@ -502,7 +502,8 @@ export class NotebookLMClient {
             bl: (this as any)._currentBl || 'boq_labs-tailwind-frontend_20260121.08_p0',
             hl: 'en',
             _reqid: this.reqIdCounter.toString(),
-            rt: 'c'
+            rt: 'c',
+            'source-path': `/notebook/${notebookId}`
         });
         if (this.sessionId) {
             urlParams.set('f.sid', this.sessionId);
