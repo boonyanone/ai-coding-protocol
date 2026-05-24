@@ -665,14 +665,6 @@ async function installMcp() {
   const mcpDir = path.join(projectRoot, '.ai', 'mcp', 'notebooklm');
 
   try {
-    // Check if git is installed
-    try {
-      execSync('git --version', { stdio: 'ignore' });
-    } catch (e) {
-      log('red', '❌ Git is not installed. Please install Git first.');
-      return;
-    }
-
     // Check if npm is installed
     try {
       execSync('npm --version', { stdio: 'ignore' });
@@ -681,16 +673,20 @@ async function installMcp() {
       return;
     }
 
-    if (fs.existsSync(mcpDir)) {
-      log('yellow', `⚠️ MCP directory already exists. Pulling latest updates...`);
-      // Reset local changes first, otherwise git pull will abort due to our patches!
-      execFileSync('git', ['reset', '--hard'], { cwd: mcpDir, stdio: 'ignore' });
-      execFileSync('git', ['pull'], { cwd: mcpDir, stdio: 'inherit' });
-    } else {
-      ensureDir(path.join(projectRoot, '.ai', 'mcp'));
-      log('reset', 'Cloning repository...');
-      execFileSync('git', ['clone', 'https://github.com/jackc1111/antigravity-notebooklm-mcp.git', mcpDir], { stdio: 'inherit' });
+    const localMcpSource = path.join(__dirname, 'notebooklm-mcp');
+    if (!fs.existsSync(localMcpSource)) {
+      log('red', '❌ Bundled MCP Server source not found in the protocol installation directory.');
+      return;
     }
+
+    if (fs.existsSync(mcpDir)) {
+      log('yellow', `⚠️ MCP directory already exists. Replacing with the latest bundled version...`);
+      fs.rmSync(mcpDir, { recursive: true, force: true });
+    }
+    
+    ensureDir(path.join(projectRoot, '.ai', 'mcp'));
+    log('reset', 'Copying bundled NotebookLM MCP Server...');
+    fs.cpSync(localMcpSource, mcpDir, { recursive: true });
     
     // Pre-create the credentials directory as a secure OS-level vault (Defense-in-Depth)
     const authDir = path.join(projectRoot, '.ai', 'mcp', 'auth');
