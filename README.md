@@ -98,6 +98,11 @@ When an AI operates in a repository using this protocol, it should follow these 
 
 The `.ai/templates/ui/` folder contains standard UI guidelines. Copy one to `.ai/docs/ui_guidelines.md` to set your project's design system:
 
+- **🌌 Futuristic**: Dark mode, glassmorphism, space-themed (Default)
+- **📊 Data Heavy**: Tremor style, table-focused, clean data visualization
+- **⚪ Minimal**: Vercel style, black & white, high contrast, simple
+- **🍭 Vibrant**: HeroUI style, colorful, rounded corners, lively
+
 ```bash
 cp .ai/templates/ui/minimal.md .ai/docs/ui_guidelines.md
 ```
