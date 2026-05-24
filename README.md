@@ -43,12 +43,12 @@ The AI uploads heavy documents into Google NotebookLM and queries it directly, e
 
 ---
 
-## 🛡️ Enterprise-Grade Security & Safety
+## 🛡️ Built-in Security Measures
 
-Running automated AI agents directly on your machine requires strict guardrails. This protocol is hardened against common and advanced AI execution vulnerabilities:
-- **Cryptographically Secure Atomic Writes:** Temp files are generated with `crypto.randomBytes(16)` and written with strict OS-level exclusive locks (`wx` and `COPYFILE_EXCL`). This completely neutralizes Race Conditions and prevents malicious agents or scripts from performing Symlink Hijacking attacks.
-- **Network & DoS Resilience:** Downloads enforce strict 5-second connection timeouts, preventing the AI from hanging the system indefinitely via malicious or stuck server connections.
-- **Deep Git Security Audits:** Pre-commit hooks run recursive checks (`**/.env*`) down to the deepest directory levels, ensuring no secrets are ever committed, even if manually staged.
+Running AI agents locally requires careful permissions. This protocol includes several safeguards to protect your files and environment:
+- **Safe File Operations:** Uses randomized temporary files and OS-level write locks to prevent race conditions or accidental file overwriting (Symlink hijacking protection).
+- **Network Timeouts:** Sets a 5-second limit on download requests so the script doesn't hang indefinitely if a server is unresponsive.
+- **Secret Scanning:** Git pre-commit hooks recursively check for `.env` files to prevent accidental leaking of credentials.
 
 ---
 
