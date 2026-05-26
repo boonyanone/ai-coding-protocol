@@ -4,6 +4,6 @@
   "description": "AI Coding Protocol Orchestrator",
   "main": "ai-protocol.js",
   "bin": {
-    "ai-protocol": "./ai-protocol.js"
+    "ai-coding-protocol": "./ai-protocol.js"
   }
 }

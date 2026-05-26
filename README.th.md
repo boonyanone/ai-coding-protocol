@@ -147,14 +147,11 @@ cp .ai/templates/ui/minimal.md .ai/docs/ui_guidelines.md
 คุณสามารถนำ Protocol นี้ไปใช้กับโปรเจกต์ใหม่ หรือโปรเจกต์ที่มีอยู่แล้วก็ได้:
 
 ```bash
-# 1. Clone โปรเจกต์นี้ไปไว้ที่ไหนก็ได้ในเครื่องของคุณ
-git clone https://github.com/<your-org>/ai-coding-protocol.git ~/.ai-coding-protocol
-
-# 2. เข้าไปที่โฟลเดอร์โปรเจกต์ที่คุณกำลังพัฒนาอยู่
+# เข้าไปที่โฟลเดอร์โปรเจกต์ที่คุณกำลังพัฒนาอยู่
 cd /path/to/your/project
 
-# 3. รันคำสั่ง init เพื่อติดตั้งระบบ
-~/.ai-coding-protocol/ai-protocol.sh init
+# รันคำสั่ง init เพื่อติดตั้งระบบ
+npx --yes github:boonyanone/ai-coding-protocol init
 ```
 
 คำสั่ง `init` จะทำการสร้างโฟลเดอร์ `.ai/` ซึ่งจะมีไฟล์เทมเพลต, Prompt ต่างๆ และไฟล์ตั้งค่า (rules) สำหรับ IDE ของคุณให้โดยอัตโนมัติ

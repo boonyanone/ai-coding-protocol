@@ -147,14 +147,11 @@ A CLI tool is included to help manage the workspace:
 To add the protocol to an existing project or a new one:
 
 ```bash
-# 1. Clone this repository anywhere on your machine
-git clone https://github.com/<your-org>/ai-coding-protocol.git ~/.ai-coding-protocol
-
-# 2. Go to your target project folder
+# Go to your target project folder
 cd /path/to/your/project
 
-# 3. Initialize the protocol in your project
-~/.ai-coding-protocol/ai-protocol.sh init
+# Initialize the protocol in your project
+npx --yes github:boonyanone/ai-coding-protocol init
 ```
 
 The `init` command will generate a `.ai/` folder in your project containing necessary templates, prompts, and config files for your IDE.

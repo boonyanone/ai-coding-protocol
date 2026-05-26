@@ -24,7 +24,7 @@
 1. เปิด Terminal (หรือหน้าต่าง Command ในโปรแกรมเขียนโค้ดของคุณ) แล้วพิมพ์คำสั่งเข้าไปที่โฟลเดอร์โปรเจกต์: `cd ~/my-app`
 2. พิมพ์คำสั่งเริ่มต้นระบบ (Init) ลงไป:
    ```bash
-   /path/to/ai-coding-protocol/ai-protocol.sh init
+   npx --yes github:boonyanone/ai-coding-protocol init
    ```
 3. **เกิดอะไรขึ้นหลังจากนี้?** 
    - ระบบจะสร้างโฟลเดอร์ล่องหนชื่อ `.ai/` ขึ้นมา ซึ่งเปรียบเสมือนสมุดจดงานของ AI

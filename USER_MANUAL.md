@@ -24,7 +24,7 @@ This step creates the "memory brain" for the AI inside your project.
 1. Open your Terminal and navigate to your project directory: `cd ~/my-app`
 2. Run the initialization command:
    ```bash
-   /path/to/ai-coding-protocol/ai-protocol.sh init
+   npx --yes github:boonyanone/ai-coding-protocol init
    ```
 3. **What happens behind the scenes?**
    - It creates a hidden `.ai/` folder, which acts as a notebook for the AI.
