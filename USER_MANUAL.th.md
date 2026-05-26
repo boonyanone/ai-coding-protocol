@@ -42,12 +42,35 @@
 
 กำหนดรูปแบบ UI ที่ชัดเจน เพื่อให้ AI เขียนโค้ดดีไซน์ออกมาตรงกันทุกครั้ง
 
-**ขั้นตอน:**
-คัดลอกไฟล์เทมเพลตจาก `.ai/templates/ui/` ไปทับไฟล์ `.ai/docs/ui_guidelines.md`:
+**วิธีตั้งค่า:**
+เลือกเทมเพลตจาก `.ai/templates/ui/` แล้วก๊อปปี้ไปไว้ที่ `.ai/docs/ui_guidelines.md`
+
+### เทมเพลตระดับพรีเมียมที่มีให้เลือก:
+
+#### 1. Shadcn UI (แนวมินิมอล สะอาดตา)
+![Shadcn UI Mockup](https://raw.githubusercontent.com/boonyanone/agent-workflow/main/public/images/shadcn.png)
 ```bash
-# ตัวอย่าง: เลือกใช้สไตล์ Minimal
-cp .ai/templates/ui/minimal.md .ai/docs/ui_guidelines.md
+cp .ai/templates/ui/shadcn.md .ai/docs/ui_guidelines.md
 ```
+
+#### 2. Aceternity UI (แนวล้ำยุค อวกาศมืด และ Glassmorphism)
+![Aceternity UI Mockup](https://raw.githubusercontent.com/boonyanone/agent-workflow/main/public/images/aceternity.png)
+```bash
+cp .ai/templates/ui/aceternity.md .ai/docs/ui_guidelines.md
+```
+
+#### 3. NextUI (แนวสดใส พาสเทล)
+![NextUI Mockup](https://raw.githubusercontent.com/boonyanone/agent-workflow/main/public/images/nextui.png)
+```bash
+cp .ai/templates/ui/nextui.md .ai/docs/ui_guidelines.md
+```
+
+#### 4. Ant Design / Tremor (สำหรับแดชบอร์ดข้อมูลแน่นๆ)
+![Ant Design Mockup](https://raw.githubusercontent.com/boonyanone/agent-workflow/main/public/images/antdesign.png)
+```bash
+cp .ai/templates/ui/antdesign.md .ai/docs/ui_guidelines.md
+```
+
 หลังจากนี้ AI จะอ่านไฟล์ `ui_guidelines.md` เพื่อใช้เป็นแนวทางในการเขียน UI
 
 ---

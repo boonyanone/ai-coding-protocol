@@ -43,10 +43,32 @@ This step creates the "memory brain" for the AI inside your project.
 Set a specific UI guideline so the AI generates consistent designs.
 
 **Steps:**
-Copy a template from `.ai/templates/ui/` to `.ai/docs/ui_guidelines.md`:
+Choose a template from `.ai/templates/ui/` and copy it to `.ai/docs/ui_guidelines.md`.
+
+### Available Premium Templates:
+
+#### 1. Shadcn UI (Minimalist & Clean)
+![Shadcn UI Mockup](https://raw.githubusercontent.com/boonyanone/agent-workflow/main/public/images/shadcn.png)
 ```bash
-# Example: Minimalist & Clean
-cp .ai/templates/ui/minimal.md .ai/docs/ui_guidelines.md
+cp .ai/templates/ui/shadcn.md .ai/docs/ui_guidelines.md
+```
+
+#### 2. Aceternity UI (Space-Dark & Glassmorphism)
+![Aceternity UI Mockup](https://raw.githubusercontent.com/boonyanone/agent-workflow/main/public/images/aceternity.png)
+```bash
+cp .ai/templates/ui/aceternity.md .ai/docs/ui_guidelines.md
+```
+
+#### 3. NextUI (Vibrant & Soft)
+![NextUI Mockup](https://raw.githubusercontent.com/boonyanone/agent-workflow/main/public/images/nextui.png)
+```bash
+cp .ai/templates/ui/nextui.md .ai/docs/ui_guidelines.md
+```
+
+#### 4. Ant Design / Tremor (Data-Heavy Enterprise)
+![Ant Design Mockup](https://raw.githubusercontent.com/boonyanone/agent-workflow/main/public/images/antdesign.png)
+```bash
+cp .ai/templates/ui/antdesign.md .ai/docs/ui_guidelines.md
 ```
 The AI will read `.ai/docs/ui_guidelines.md` before generating UI components.
 

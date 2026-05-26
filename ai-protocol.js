@@ -296,6 +296,13 @@ function init() {
           }
         }
         
+        // Drop HOW_TO_USE.md in the project root
+        const howToUseSrc = path.join(sourceDir, '.ai/templates/HOW_TO_USE.md');
+        const howToUseDest = path.join(targetDir, 'HOW_TO_USE.md');
+        if (fs.existsSync(howToUseSrc) && !fs.existsSync(howToUseDest)) {
+          fs.copyFileSync(howToUseSrc, howToUseDest);
+        }
+        
         log('green', '✅ Created multi-IDE config files (.cursorrules, .windsurfrules, .clinerules, .clauderules, .claudecoderc, SKILL.md, copilot-instructions.md).');
         log('green', '✅ Installed ai-protocol.sh CLI tool in your project.');
       }
