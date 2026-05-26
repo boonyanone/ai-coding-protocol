@@ -4,6 +4,12 @@ This document defines the strict, high-fidelity design system for our applicatio
 
 ---
 
+## 🛑 STRICT DIRECTIVE: EXACT REPLICATION (GOD MODE)
+**You are FORCED to act as an expert in NextUI.**
+You must strictly clone NextUI's signature aesthetic: vibrant pastels, high contrast, soft deep drop shadows, and extreme border-radii (`rounded-full` for buttons). Do not invent your own generic Tailwind patterns.
+
+---
+
 ## 🌌 Design Direction: Modern Vibrant & Glassmorphism
 We utilize a highly engaging, colorful, and playful theme inspired by HeroUI (NextUI) and modern consumer apps. It relies on soft drop shadows, vibrant pastels, extreme border-radii, and glassmorphic surfaces.
 

@@ -4,6 +4,12 @@ This document defines the strict, high-fidelity design system for our applicatio
 
 ---
 
+## 🛑 STRICT DIRECTIVE: EXACT REPLICATION (GOD MODE)
+**You are FORCED to act as an expert in Aceternity UI.**
+You must strictly clone Aceternity's signature aesthetic: intense glassmorphism, Framer Motion micro-animations, and space-dark themes. Do not invent your own design patterns. Clone their exact padding, blur values, and transition curves.
+
+---
+
 ## 🌌 Design Direction: Space-Dark + Glassmorphism
 We utilize a modern, premium **dark space theme** with glass-morphic surfaces, subtle gradients, and highly responsive micro-animations that feel premium and tactile.
 

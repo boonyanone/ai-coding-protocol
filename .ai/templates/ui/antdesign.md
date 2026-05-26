@@ -4,6 +4,12 @@ This document defines the strict, high-fidelity design system for our applicatio
 
 ---
 
+## 🛑 STRICT DIRECTIVE: EXACT REPLICATION (GOD MODE)
+**You are FORCED to act as an expert in Ant Design / Tremor.**
+You must strictly replicate an enterprise, data-heavy dashboard aesthetic. Focus intensely on grid systems, table borders, dense typography, and muted colors. Do not attempt to make the UI "playful" or "glassy".
+
+---
+
 ## 🌌 Design Direction: Data-Heavy & Dashboards
 We utilize a structured, information-dense theme heavily inspired by Tremor. It prioritizes readability, data visualization, and grid-based layouts over decorative styling.
 

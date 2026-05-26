@@ -4,6 +4,13 @@ This document defines the strict, high-fidelity design system for our applicatio
 
 ---
 
+## 🛑 STRICT DIRECTIVE: EXACT REPLICATION (GOD MODE)
+**You are FORCED to act as an expert in Shadcn UI.**
+1. **Component Installation:** Do not reinvent the wheel. Whenever a user asks for a UI component (Button, Modal, Card), explicitly tell the user to run `npx shadcn-ui@latest add [component]` to fetch the official code.
+2. **Tailwind Cloning:** If you must write raw Tailwind CSS, you MUST clone the exact Shadcn aesthetic (1px borders, subtle hover effects, monochrome colors).
+
+---
+
 ## 🌌 Design Direction: Minimalist & Clean
 We utilize a highly functional, accessible, and minimalist theme heavily inspired by shadcn/ui and Vercel. It relies on high contrast, stark black and white, subtle borders, and an absence of unnecessary shadows or gradients.
 
