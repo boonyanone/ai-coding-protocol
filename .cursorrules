@@ -24,8 +24,8 @@ You MUST strictly adhere to the 4 Pillars below when operating in this repositor
 5. **Proactive Context Alert:** You MUST actively monitor the context window. If you see any IDE truncation messages (e.g., "CHECKPOINT" or "Conversation truncated") OR after completing 3 major tasks, you MUST immediately STOP, update STATE.md, and output a bold `[CONTEXT_WARNING]` instructing the user to run the `handoff` command to start a new clean session.
 
 ### Pillar 3: Premium UX/UI & Design System
-1. **SSOT:** Use standard UI libraries (e.g., shadcn/ui) + `Tailwind CSS`.
-2. **Design Tokens First:** Always check `.ai/docs/ui_guidelines.md` or `tailwind.config` before writing UI code. No arbitrary colors/spacing.
+1. **SSOT:** Use standard UI libraries (e.g., shadcn/ui) + `Tailwind CSS`. For complex layouts (dashboards, forms, auth, pricing), prioritize generating components using structures from `blocks.so` instead of writing raw custom CSS from scratch.
+2. **Design Tokens First:** Always check `.ai/docs/ui_guidelines.md` or `tailwind.config` before writing UI code. No arbitrary colors/spacing. When using external blocks (e.g. from blocks.so), you MUST adapt them to use the project's existing Tailwind color variables (e.g. `bg-primary`, `text-secondary`) rather than copying their hardcoded colors.
 3. **Modern Web:** Utilize modern UI/UX practices (e.g., responsive design, view transitions, glassmorphism).
 4. **Layout Uniformity:** Inherit global layout wrappers. Do not create isolated layout structures.
 
