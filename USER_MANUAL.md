@@ -65,10 +65,10 @@ cp .ai/templates/ui/aceternity.md .ai/docs/ui_guidelines.md
 cp .ai/templates/ui/nextui.md .ai/docs/ui_guidelines.md
 ```
 
-#### 4. Ant Design / Tremor (Data-Heavy Enterprise)
-![Ant Design Mockup](https://raw.githubusercontent.com/boonyanone/agent-workflow/main/public/images/antdesign.png)
+#### 4. Blocks.so + shadcn/ui (Premium SaaS Dashboards)
+![Blocks.so Mockup](https://raw.githubusercontent.com/boonyanone/agent-workflow/main/public/images/blocks.png)
 ```bash
-cp .ai/templates/ui/antdesign.md .ai/docs/ui_guidelines.md
+cp .ai/templates/ui/blocks.md .ai/docs/ui_guidelines.md
 ```
 The AI will read `.ai/docs/ui_guidelines.md` before generating UI components.
 

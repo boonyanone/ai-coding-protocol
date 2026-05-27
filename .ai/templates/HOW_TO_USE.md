@@ -27,6 +27,11 @@ cp .ai/templates/ui/nextui.md .ai/docs/ui_guidelines.md
 cp .ai/templates/ui/antdesign.md .ai/docs/ui_guidelines.md
 ```
 
+**For Premium SaaS Dashboards (Blocks.so + shadcn/ui):**
+```bash
+cp .ai/templates/ui/blocks.md .ai/docs/ui_guidelines.md
+```
+
 *(Once copied, the AI will strictly follow these rules and will NEVER hallucinate random colors or styles!)*
 
 ## 2. Start a New Task

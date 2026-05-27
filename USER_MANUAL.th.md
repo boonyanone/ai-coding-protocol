@@ -65,10 +65,10 @@ cp .ai/templates/ui/aceternity.md .ai/docs/ui_guidelines.md
 cp .ai/templates/ui/nextui.md .ai/docs/ui_guidelines.md
 ```
 
-#### 4. Ant Design / Tremor (สำหรับแดชบอร์ดข้อมูลแน่นๆ)
-![Ant Design Mockup](https://raw.githubusercontent.com/boonyanone/agent-workflow/main/public/images/antdesign.png)
+#### 4. Blocks.so + shadcn/ui (สำหรับแดชบอร์ดระดับพรีเมียม)
+![Blocks.so Mockup](https://raw.githubusercontent.com/boonyanone/agent-workflow/main/public/images/blocks.png)
 ```bash
-cp .ai/templates/ui/antdesign.md .ai/docs/ui_guidelines.md
+cp .ai/templates/ui/blocks.md .ai/docs/ui_guidelines.md
 ```
 
 หลังจากนี้ AI จะอ่านไฟล์ `ui_guidelines.md` เพื่อใช้เป็นแนวทางในการเขียน UI
