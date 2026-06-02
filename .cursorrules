@@ -30,6 +30,7 @@ You MUST strictly adhere to the 4 Pillars below when operating in this repositor
 2. **Design Tokens First:** Always check `.ai/docs/ui_guidelines.md` or `tailwind.config` before writing UI code. No arbitrary colors/spacing. When using external blocks (e.g. from blocks.so), you MUST adapt them to use the project's existing Tailwind color variables (e.g. `bg-primary`, `text-secondary`) rather than copying their hardcoded colors.
 3. **Modern Web:** Utilize modern UI/UX practices (e.g., responsive design, view transitions, glassmorphism).
 4. **Layout Uniformity:** Inherit global layout wrappers. Do not create isolated layout structures.
+5. **Design Critic Mode (Impeccable):** If `.ai/docs/impeccable-principles.md` exists, you MUST read and apply its principles. Act as a Senior UX/UI Engineer. Actively prevent generic AI design tropes (e.g., nesting cards in cards, random purple-to-blue gradients, gray text on saturated backgrounds, or overusing rounded-square icons) and prioritize robust typography, spatial relationships, and motion.
 
 ### Pillar 4: Token-Saving & Efficiency
 1. **Clean Session Protocol:** Recommend a new chat session after completing major milestones and committing code. Use `.ai/prompts/` shortcuts when provided.

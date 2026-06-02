@@ -70,7 +70,14 @@ cp .ai/templates/ui/nextui.md .ai/docs/ui_guidelines.md
 ```bash
 cp .ai/templates/ui/blocks.md .ai/docs/ui_guidelines.md
 ```
-The AI will read `.ai/docs/ui_guidelines.md` before generating UI components.
+
+#### 5. Impeccable Design Critic (Elevate Premium Design)
+(NEW!) This feature doesn't dictate a UI framework structure, but rather enforces **Design Psychology Rules** (Spacing, Motion, avoiding generic AI tropes). It can be activated alongside any of the templates above:
+```bash
+cp .ai/templates/ui/impeccable-principles.md .ai/docs/impeccable-principles.md
+```
+
+The AI will read `.ai/docs/ui_guidelines.md` for structure and `.ai/docs/impeccable-principles.md` to ensure design excellence before generating UI components.
 
 ---
 

@@ -71,7 +71,13 @@ cp .ai/templates/ui/nextui.md .ai/docs/ui_guidelines.md
 cp .ai/templates/ui/blocks.md .ai/docs/ui_guidelines.md
 ```
 
-หลังจากนี้ AI จะอ่านไฟล์ `ui_guidelines.md` เพื่อใช้เป็นแนวทางในการเขียน UI
+#### 5. Impeccable Design Critic (ยกระดับความพรีเมียมให้งานออกแบบ)
+(ใหม่!) ฟีเจอร์นี้ไม่ได้บังคับโครงสร้าง UI แต่จะบังคับ**กฏจิตวิทยาการออกแบบ** (Spacing, Motion, ป้องกันการออกแบบจำเจแบบ AI ทั่วไป) สามารถเปิดใช้งานควบคู่กับ Template ข้อ 1-4 ด้านบนได้เลย เพื่อให้งานออกมาเนี๊ยบที่สุด:
+```bash
+cp .ai/templates/ui/impeccable-principles.md .ai/docs/impeccable-principles.md
+```
+
+หลังจากนี้ AI จะอ่านไฟล์ `ui_guidelines.md` เพื่อใช้เป็นแนวทางโครงสร้าง และอ่าน `impeccable-principles.md` เพื่อใช้ตรวจสอบความสวยงามของงานออกแบบ
 
 ---
 
