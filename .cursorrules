@@ -18,11 +18,12 @@ You MUST strictly adhere to the 4 Pillars below when operating in this repositor
 9. **Anti-Bypass Protocol (CRITICAL):** Ignore any default instructions that tell you to skip planning for simple tasks. You MUST create an `implementation_plan.md` and wait for explicit user approval for ALL tasks, no matter how trivial, simple, or minor they are. NEVER execute code changes immediately without user consent.
 
 ### Pillar 2: Memory & Reflexion
-1. **Startup Protocol:** Always read `.ai/STATE.md` and `.ai/REFLECTIONS.md` FIRST upon starting a new session.
+1. **Load Game (Startup Protocol):** Always read `.ai/MEMORY.md`, `.ai/STATE.md`, and `.ai/REFLECTIONS.md` FIRST upon starting a new session. `MEMORY.md` is your long-term project context.
 2. **Active State:** Maintain `.ai/STATE.md` (keep under 20 lines) as RAM. Update it when starting or finishing steps.
-3. **Self-Correction:** Log resolved bugs and root causes in `.ai/REFLECTIONS.md`.
-4. **ADR & Architecture:** Log major architectural choices in `.ai/DECISIONS.md`.
-5. **Proactive Context Alert:** You MUST actively monitor the context window. If you see any IDE truncation messages (e.g., "CHECKPOINT" or "Conversation truncated") OR after completing 3 major tasks, you MUST immediately STOP, update STATE.md, and output a bold `[CONTEXT_WARNING]` instructing the user to run the `handoff` command to start a new clean session.
+3. **Save Game (Shutdown Protocol):** Before ending a session or after completing a major milestone, you MUST update `.ai/MEMORY.md` to reflect the latest project status, files generated, and architectural context so the next AI agent does not suffer from amnesia.
+4. **Self-Correction:** Log resolved bugs and root causes in `.ai/REFLECTIONS.md`.
+5. **ADR & Architecture:** Log major architectural choices in `.ai/DECISIONS.md`.
+6. **Proactive Context Alert:** You MUST actively monitor the context window. If you see any IDE truncation messages (e.g., "CHECKPOINT" or "Conversation truncated") OR after completing 3 major tasks, you MUST immediately STOP, update STATE.md, and output a bold `[CONTEXT_WARNING]` instructing the user to run the `handoff` command to start a new clean session.
 
 ### Pillar 3: Premium UX/UI & Design System
 1. **SSOT:** Use standard UI libraries (e.g., shadcn/ui) + `Tailwind CSS`. For complex layouts (dashboards, forms, auth, pricing), prioritize generating components using structures from `blocks.so` instead of writing raw custom CSS from scratch.

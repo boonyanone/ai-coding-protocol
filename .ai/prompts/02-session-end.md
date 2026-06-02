@@ -5,7 +5,8 @@
 ```text
 We are done with this step. Please do the following in order:
 1. Run Linter and Typecheck (if applicable).
-2. Update `.ai/STATE.md` to reflect our progress.
-3. Suggest an appropriate Conventional Commit message.
-4. Prepare to close this session so we can start a fresh chat to save context window space.
+2. Update `.ai/STATE.md` to reflect our immediate progress.
+3. Update `.ai/MEMORY.md` to Save Game (record major milestones or architectural changes).
+4. Suggest an appropriate Conventional Commit message.
+5. Prepare to close this session so we can start a fresh chat to save context window space.
 ```

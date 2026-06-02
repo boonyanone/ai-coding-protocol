@@ -317,10 +317,12 @@ function init() {
   const statePath = path.join(targetDir, '.ai/STATE.md');
   const reflectionsPath = path.join(targetDir, '.ai/REFLECTIONS.md');
   const decisionsPath = path.join(targetDir, '.ai/DECISIONS.md');
+  const memoryPath = path.join(targetDir, '.ai/MEMORY.md');
 
   const stateTemplate = path.join(targetDir, '.ai/templates/STATE.template.md');
   const reflectionsTemplate = path.join(targetDir, '.ai/templates/REFLECTIONS.template.md');
   const decisionsTemplate = path.join(targetDir, '.ai/templates/DECISIONS.template.md');
+  const memoryTemplate = path.join(targetDir, '.ai/templates/MEMORY.template.md');
 
   if (!fs.existsSync(statePath) && fs.existsSync(stateTemplate)) {
     fs.copyFileSync(stateTemplate, statePath);
@@ -333,6 +335,10 @@ function init() {
   if (!fs.existsSync(decisionsPath) && fs.existsSync(decisionsTemplate)) {
     fs.copyFileSync(decisionsTemplate, decisionsPath);
     log('green', '✅ Instantiated .ai/DECISIONS.md from template.');
+  }
+  if (!fs.existsSync(memoryPath) && fs.existsSync(memoryTemplate)) {
+    fs.copyFileSync(memoryTemplate, memoryPath);
+    log('green', '✅ Instantiated .ai/MEMORY.md from template.');
   }
 
   log('green', '🎉 AI Protocol initialization complete!');
