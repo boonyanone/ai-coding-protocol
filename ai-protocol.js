@@ -11,7 +11,7 @@ const crypto = require('crypto');
 // If you are an AI Agent adding a new feature or fixing a bug in this file,
 // you MUST increment the PROTOCOL_VERSION below AND the version in package.json.
 // ============================================================================
-const PROTOCOL_VERSION = "1.1.13";
+const PROTOCOL_VERSION = "1.1.14";
 
 const args = process.argv.slice(2);
 const command = args[0];
@@ -409,6 +409,34 @@ async function check() {
     }
   }
 
+  // 4. Check if code changes are staged without memory updates (Save Game check)
+  if (fs.existsSync(gitPath)) {
+    try {
+      const stagedFilesOutput = execSync('git diff --cached --name-only', { cwd: projectRoot, encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] }).trim();
+      if (stagedFilesOutput) {
+        const stagedFiles = stagedFilesOutput.split(/\r?\n/).map(f => f.trim());
+        const hasCodeChanges = stagedFiles.some(f => {
+          return !f.startsWith('.ai/') && 
+                 !f.startsWith('.') && 
+                 f !== 'package.json' && 
+                 f !== 'package-lock.json' && 
+                 !f.endsWith('.md');
+        });
+        const hasMemoryUpdate = stagedFiles.some(f => f === '.ai/MEMORY.md' || f === '.ai/STATE.md');
+        
+        if (hasCodeChanges && !hasMemoryUpdate) {
+          log('red', '❌ Compliance Danger: You have staged code changes but did not update .ai/MEMORY.md or .ai/STATE.md!');
+          log('red', '   AI must always Save Game before committing. Please update and stage memory files.');
+          hasError = true;
+        } else if (hasCodeChanges && hasMemoryUpdate) {
+          log('green', '✅ Staged code changes are safely accompanied by memory updates.');
+        }
+      }
+    } catch (e) {
+      // Ignore git errors
+    }
+  }
+
   if (!hasError) {
     log('green', '🎉 All checks passed! Your AI workspace is optimized.');
   } else {
@@ -517,14 +545,13 @@ echo "🤖 Running AI Protocol Check..."
 ${hookLine}
 
 if [ $? -ne 0 ]; then
-  echo "❌ AI Protocol Check Failed. Please fix the warnings."
-  # Uncomment the next line to block commits if check fails
-  # exit 1
+  echo "❌ AI Protocol Check Failed. Please fix compliance warnings before committing."
+  exit 1
 fi
 exit 0
 `;
     atomicWriteSync(hookPath, hookContent, { mode: 0o755 });
-    log('green', '✅ Pre-commit hook installed successfully! (Currently non-blocking)');
+    log('green', '✅ Pre-commit hook installed successfully! (Blocking Mode)');
   }
 }
 
