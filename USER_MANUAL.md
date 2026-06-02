@@ -31,7 +31,7 @@ This step creates the "memory brain" for the AI inside your project.
    - It sets up a `STATE.md` file so the AI remembers what task it is currently doing.
    - It enforces strict IDE rules (like `.cursorrules`) so the AI behaves predictably.
 
-**Optional:** Install the Git Hook to check for `.env` leaks before commits:
+**Optional (But Highly Recommended):** Install the Git Hook in "Strict Blocking Mode" to prevent `.env` leaks and enforce that the AI updates memory files (Save Game) before any commit:
 ```bash
 ./ai-protocol.sh install-hook
 ```
@@ -90,7 +90,8 @@ To conserve tokens and maintain context, break tasks into smaller steps.
 
 Keep the files in the `.ai/` folder organized to prevent token bloat.
 
-- **`STATE.md`:** Tracks current tasks. When starting a completely new feature, back up the old state and start fresh:
+- **`MEMORY.md`:** (NEW!) Acts as the long-term memory (Save Game). The AI must read this at the start of a session (Load Game) and update it when a feature is complete to prevent AI amnesia.
+- **`STATE.md`:** Tracks current tasks (RAM). When starting a completely new feature, back up the old state and start fresh:
   ```bash
   ./ai-protocol.sh clean
   ```

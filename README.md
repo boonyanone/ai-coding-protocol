@@ -51,7 +51,8 @@ The framework organizes context into short-term and long-term memory:
 ```text
 / (Root Project)
 ├── .ai/
-│   ├── STATE.md                    # Current active task & next steps
+│   ├── MEMORY.md                   # Long-term project memory (Save Game)
+│   ├── STATE.md                    # Current active task & next steps (RAM)
 │   ├── REFLECTIONS.md              # Lessons learned & bug fixes
 │   ├── DECISIONS.md                # Architecture Decision Records
 │   ├── templates/                  # Blank templates
@@ -81,8 +82,10 @@ When an AI operates in a repository using this protocol, it should follow these 
 - **Plan First:** Summarize requirements before coding.
 - **Security:** Do not hardcode secrets. Use `.env`.
 
-### Memory Management
-- **Startup:** Read `.ai/STATE.md` and `.ai/REFLECTIONS.md` first.
+### Memory Management (Save/Load Game)
+- **Startup (Load Game):** Read `.ai/MEMORY.md`, `.ai/STATE.md` and `.ai/REFLECTIONS.md` first.
+- **During Work:** Update `.ai/STATE.md` frequently.
+- **On Completion (Save Game):** Save the final state to `.ai/MEMORY.md` so the next AI agent retains project context.
 - **Decisions:** Document major changes in `.ai/DECISIONS.md`.
 - **Context Limits:** Suggest starting a new session if the chat gets too long.
 
@@ -132,7 +135,7 @@ A CLI tool is included to help manage the workspace:
 # Open a summary dashboard
 ./ai-protocol.sh dashboard
 
-# Install a git pre-commit hook
+# Install a git pre-commit hook (Strict blocking mode & memory checks)
 ./ai-protocol.sh install-hook
 
 # Update the protocol scripts
