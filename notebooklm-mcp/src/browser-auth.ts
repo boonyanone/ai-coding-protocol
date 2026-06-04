@@ -14,6 +14,7 @@ import fs from 'fs';
 import path from 'path';
 import os from 'os';
 import http from 'http';
+import url from 'url';
 
 export interface AuthTokens {
     cookies: Record<string, string>;
@@ -325,7 +326,7 @@ export async function browserLogin(): Promise<AuthTokens> {
         fs.mkdirSync(authDir, { recursive: true });
     }
 
-    fs.writeFileSync(authPath, JSON.stringify(authData, null, 2), { mode: 0o600 });
+    fs.writeFileSync(authPath, JSON.stringify(authData, null, 2));
 
     console.log(`📁 Saved to: ${authPath}`);
     console.log('\n✅ SUCCESS! You can now close the browser.');
@@ -352,7 +353,16 @@ async function main() {
 }
 
 // Run if executed directly
-const isMainModule = import.meta.url === `file://${process.argv[1]}`;
+let isMainModule = false;
+if (process.argv[1]) {
+    try {
+        isMainModule = import.meta.url === url.pathToFileURL(process.argv[1]).href;
+    } catch (e) {
+        // Fallback
+        isMainModule = import.meta.url === `file://${process.argv[1]}` || import.meta.url.replace(/%20/g, ' ') === `file://${process.argv[1]}`;
+    }
+}
+
 if (isMainModule) {
     main();
 }

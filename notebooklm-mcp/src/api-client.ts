@@ -12,8 +12,9 @@ export class NotebookLMClient {
     private csrfToken: string = '';
     private sessionId: string = '';
     private reqIdCounter: number = 100000;
+    private onAuthFailure?: () => Promise<AuthTokens>;
 
-    constructor(auth: AuthTokens) {
+    constructor(auth: AuthTokens, onAuthFailure?: () => Promise<AuthTokens>) {
         this.client = axios.create({
             baseURL: 'https://notebooklm.google.com',
             headers: {
@@ -35,6 +36,56 @@ export class NotebookLMClient {
         });
         this.csrfToken = auth.csrfToken || '';
         this.sessionId = auth.sessionId || '';
+        this.onAuthFailure = onAuthFailure;
+        this._setupInterceptor();
+    }
+
+    private _setupInterceptor() {
+        this.client.interceptors.response.use(
+            (response) => {
+                // Google might return 200 OK but with an HTML login page or generic error if unauthenticated
+                if (typeof response.data === 'string' && response.data.includes('accounts.google.com/signin')) {
+                    // This is an auth failure wrapped in a 200 OK redirect
+                    return Promise.reject({ config: response.config, response: { status: 401, data: response.data } });
+                }
+                return response;
+            },
+            async (error) => {
+                const originalRequest = error.config;
+                
+                // If it's an auth error and we haven't already retried
+                if (error.response && (error.response.status === 401 || error.response.status === 403) && originalRequest && !originalRequest._retry) {
+                    if (this.onAuthFailure) {
+                        originalRequest._retry = true;
+                        try {
+                            console.error("\n🔄 [NotebookLM MCP] Session expired. Automatically refreshing authentication...");
+                            const newAuth = await this.onAuthFailure();
+                            
+                            // Update client state
+                            this.csrfToken = newAuth.csrfToken || '';
+                            this.sessionId = newAuth.sessionId || '';
+                            this.client.defaults.headers['Cookie'] = newAuth.cookies;
+                            
+                            // Update the failed request
+                            originalRequest.headers['Cookie'] = newAuth.cookies;
+                            
+                            // If the request was a POST, we might need to update the 'at' token in the payload
+                            if (originalRequest.data && typeof originalRequest.data === 'string' && newAuth.csrfToken) {
+                                // The token is in the `&at=...` param
+                                originalRequest.data = originalRequest.data.replace(/&at=[^&]+/, `&at=${encodeURIComponent(newAuth.csrfToken)}`);
+                            }
+                            
+                            console.error("✅ [NotebookLM MCP] Authentication refreshed! Retrying previous request...");
+                            return this.client(originalRequest);
+                        } catch (reAuthError) {
+                            console.error("❌ [NotebookLM MCP] Automatic re-authentication failed:", reAuthError);
+                            return Promise.reject(reAuthError);
+                        }
+                    }
+                }
+                return Promise.reject(error);
+            }
+        );
     }
 
     async refreshAtToken(): Promise<string> {
@@ -62,11 +113,13 @@ export class NotebookLMClient {
             }
 
             if (!this.csrfToken) {
-                throw new Error("Could not find 'at' token in page source. Are you logged in?");
+                // Simulate an auth error to trigger the interceptor if not caught above
+                throw { config: {}, response: { status: 401, data: 'No AT token found' } };
             }
             return this.csrfToken;
         } catch (error: any) {
-            console.error("Error refreshing tokens:", error.message);
+            // If the interceptor already ran and failed, it will pass through here
+            console.error("Error refreshing tokens:", error.message || error);
             throw error;
         }
     }
@@ -115,10 +168,6 @@ export class NotebookLMClient {
     }
 
     private _parseBatchResponse(responseText: string): any {
-        if (typeof responseText === 'string' && responseText.includes('[5]') && responseText.includes('wrb.fr')) {
-            throw new Error("Notebook not found (Error [5]). If this is a publicly shared link, the NotebookLM API strictly blocks queries. The user MUST open the link and click 'Make a copy' to own it before querying via MCP.");
-        }
-        
         if (responseText.startsWith(")]}'")) {
             responseText = responseText.substring(4);
         }
@@ -511,16 +560,12 @@ export class NotebookLMClient {
         const queryUrl = `/_/LabsTailwindUi/data/google.internal.labs.tailwind.orchestration.v1.LabsTailwindOrchestrationService/GenerateFreeFormStreamed?${urlParams.toString()}`;
 
         const conversation_id = conversationId || "session-" + Math.random().toString(36).substring(7);
-        // Structure: [sources_array, query, history, [2, null, [1]], conversation_id, null, null, notebookId, 1]
+        // Structure: [sources_array, query, history, [2, null, [1]], conversation_id]
         // sources_array: [[[sid1]], [[sid2]], ...] or [] for all
-        const params = [[], queryText, null, [2, null, [1]], conversation_id, null, null, notebookId, 1];
+        const params = [[], queryText, null, [2, null, [1]], conversation_id];
 
         const body = await this._buildQueryBody(params);
         const response = await this.client.post(queryUrl, body);
-
-        if (typeof response.data === 'string' && response.data.includes('[5]') && response.data.includes('wrb.fr')) {
-            throw new Error("Notebook not found (Error [5]). If this is a publicly shared link, the NotebookLM API strictly blocks queries. The user MUST open the link and click 'Make a copy' to own it before querying via MCP.");
-        }
 
         // Response is streaming, but we return raw for now.
         return response.data;

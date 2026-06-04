@@ -52,8 +52,17 @@ function getClient() {
             console.error("Status: Using environment variables for auth");
         }
 
+        const onAuthFailure = async () => {
+            console.error("Status: Triggering browser login for re-authentication...");
+            const newTokens = await browserLogin();
+            return {
+                cookies: Object.entries(newTokens.cookies).map(([k, v]) => `${k}=${v}`).join("; "),
+                csrfToken: newTokens.csrf_token,
+            };
+        };
+
         console.error("Initializing NotebookLMClient with cookies length:", cookies.length, "and csrf length:", csrfToken.length);
-        client = new NotebookLMClient({ cookies, csrfToken });
+        client = new NotebookLMClient({ cookies, csrfToken }, onAuthFailure);
         orchestrator = new NotebookOrchestrator(client);
     }
     return { client, orchestrator };
@@ -336,7 +345,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
                         }, {}),
                         csrf_token: csrfToken?.trim() || ''
                     };
-                    fs.writeFileSync(authPath, JSON.stringify(authData, null, 2), { mode: 0o600 });
+                    fs.writeFileSync(authPath, JSON.stringify(authData, null, 2));
                     console.error("Saved new authentication tokens to cache");
                 } catch (e) {
                     console.error("Failed to save auth cache:", e);
