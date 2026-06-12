@@ -77,7 +77,13 @@ cp .ai/templates/ui/blocks.md .ai/docs/ui_guidelines.md
 cp .ai/templates/ui/impeccable-principles.md .ai/docs/impeccable-principles.md
 ```
 
-The AI will read `.ai/docs/ui_guidelines.md` for structure and `.ai/docs/impeccable-principles.md` to ensure design excellence before generating UI components.
+#### 6. Anti-Slop Design Critic (Taste-Skill)
+(NEW!) A rigorous framework specifically designed to force AI to avoid generic 'slop' design tropes (e.g., generic gradients, messy spacing, boring typography). You can activate it by running:
+```bash
+cp .ai/templates/ui/taste-skill.md .ai/docs/taste-skill.md
+```
+
+The AI will read `.ai/docs/ui_guidelines.md` for structure and `.ai/docs/impeccable-principles.md` (or `.ai/docs/taste-skill.md`) to ensure design excellence before generating UI components.
 
 ---
 

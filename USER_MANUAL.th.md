@@ -77,7 +77,13 @@ cp .ai/templates/ui/blocks.md .ai/docs/ui_guidelines.md
 cp .ai/templates/ui/impeccable-principles.md .ai/docs/impeccable-principles.md
 ```
 
-หลังจากนี้ AI จะอ่านไฟล์ `ui_guidelines.md` เพื่อใช้เป็นแนวทางโครงสร้าง และอ่าน `impeccable-principles.md` เพื่อใช้ตรวจสอบความสวยงามของงานออกแบบ
+#### 6. Anti-Slop Design Critic (ป้องกันงานเผาด้วย Taste-Skill)
+(ใหม่!) กฏเหล็กที่บังคับไม่ให้ AI ออกแบบงานแนว Slop (งานเผา, สีเกรเดียนต์มั่วๆ, ฟอนต์เชยๆ) โดยเน้นเรื่อง Typography, Spacing และ Layout อย่างเคร่งครัด สามารถเปิดใช้งานได้ด้วยคำสั่ง:
+```bash
+cp .ai/templates/ui/taste-skill.md .ai/docs/taste-skill.md
+```
+
+หลังจากนี้ AI จะอ่านไฟล์ `ui_guidelines.md` เพื่อใช้เป็นแนวทางโครงสร้าง และอ่าน `impeccable-principles.md` (หรือ `taste-skill.md`) เพื่อใช้ตรวจสอบความสวยงามของงานออกแบบ
 
 ---
 
