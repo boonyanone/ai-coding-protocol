@@ -13,6 +13,7 @@ This guide explains how to use the protocol to manage AI coding sessions efficie
 6. [Terminal Dashboard](#6-terminal-dashboard)
 7. [NotebookLM Integration](#7-notebooklm-integration)
 8. [CLI Commands Reference](#8-cli-commands-reference)
+9. [Knowledge Graph (Understand-Anything)](#9-knowledge-graph-understand-anything)
 
 ---
 
@@ -175,3 +176,27 @@ Run `./ai-protocol.sh [command]` in your project root:
 | `install-hook` | Install a Git pre-commit hook. |
 | `install-mcp` | Install NotebookLM integration. |
 | `auth-mcp` | Authenticate with NotebookLM. |
+| `install-graph` | Install Understand-Anything Knowledge Graph. |
+| `scan` | Show instructions to scan the project graph. |
+
+---
+
+## 9. Knowledge Graph (Understand-Anything)
+
+To prevent AI from editing files blindly and breaking the architecture, you can generate a Visual Knowledge Graph of your entire project.
+
+**Steps:**
+1. **Install:** Run `./ai-protocol.sh install-graph` to install the `Understand-Anything` plugin into your IDE (Cursor, Copilot, Antigravity).
+2. **Scan the Project:** Open your AI chat window in your IDE and type:
+   ```
+   /understand
+   ```
+   The AI will scan your repository and create `.understand-anything/knowledge-graph.json`.
+3. **View the Dashboard:** To visually explore your codebase architecture, type:
+   ```
+   /understand-dashboard
+   ```
+   
+**How it helps:**
+- The protocol rules (`.cursorrules`) automatically force the AI to read this graph before making any multi-file changes or crossing architectural layers (e.g., UI to Database).
+- If you edit more than 10 files without updating the graph, the Git Pre-commit hook will warn you to run `/understand` again to keep the AI's map up-to-date.

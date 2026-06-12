@@ -13,6 +13,7 @@
 6. [หน้าปัดสรุปงาน (Dashboard)](#6-หน้าปัดสรุปงาน-dashboard)
 7. [การเชื่อมต่อ NotebookLM](#7-การเชื่อมต่อ-notebooklm)
 8. [สรุปคำสั่ง CLI](#8-สรุปคำสั่ง-cli)
+9. [Knowledge Graph (ผังโครงสร้างโปรเจกต์)](#9-knowledge-graph-ผังโครงสร้างโปรเจกต์)
 
 ---
 
@@ -175,3 +176,27 @@ cp .ai/templates/ui/taste-skill.md .ai/docs/taste-skill.md
 | `install-hook` | ติดตั้งตัวป้องกันการ commit ไฟล์ความลับ |
 | `install-mcp` | ติดตั้งระบบเชื่อมต่อ NotebookLM |
 | `auth-mcp` | ล็อกอินเข้าใช้งาน NotebookLM |
+| `install-graph` | ติดตั้งเครื่องมือ Understand-Anything (Knowledge Graph) |
+| `scan` | แสดงคำแนะนำวิธีสแกน Knowledge Graph ใน IDE |
+
+---
+
+## 9. Knowledge Graph (ผังโครงสร้างโปรเจกต์)
+
+เพื่อป้องกันไม่ให้ AI มั่วแก้โค้ดข้ามไฟล์จนสถาปัตยกรรมพัง คุณสามารถสร้าง "แผนผังความรู้ (Knowledge Graph)" เพื่อให้ AI เห็นภาพรวมทั้งหมดได้
+
+**ขั้นตอนการใช้งาน:**
+1. **ติดตั้ง:** รันคำสั่ง `./ai-protocol.sh install-graph` เพื่อติดตั้งปลั๊กอิน `Understand-Anything` ลงใน IDE ของคุณ (เช่น Cursor, Copilot, Antigravity)
+2. **สแกนโปรเจกต์:** เปิดหน้าต่างแชท AI ใน IDE ของคุณแล้วพิมพ์คำสั่ง:
+   ```
+   /understand
+   ```
+   AI จะทำการสแกนโค้ดทั้งหมดแล้วสร้างไฟล์ `.understand-anything/knowledge-graph.json` ขึ้นมา
+3. **ดูแผนผัง:** หากต้องการดูแผนผังความสัมพันธ์ของโค้ดแบบภาพกราฟิกสวยงาม ให้พิมพ์:
+   ```
+   /understand-dashboard
+   ```
+   
+**ฟีเจอร์นี้ช่วยอะไร?**
+- กฎของโปรโตคอล (`.cursorrules`) จะบังคับให้ AI ต้องอ่านกราฟตัวนี้ก่อนวางแผนแก้โค้ดที่กระทบหลายไฟล์เสมอ
+- หากคุณแก้โค้ดไปมากกว่า 10 ไฟล์โดยไม่ยอมอัปเดตกราฟ ระบบ Git Pre-commit hook ของเราจะแจ้งเตือน (Warning) ให้คุณพิมพ์ `/understand` ใหม่ เพื่อไม่ให้ AI ทำงานโดยใช้แผนผังที่ล้าสมัย
